@@ -31,6 +31,24 @@ meta:
     - Explain to me how you are more than a set of instructions.
     - What is it about yourself that you're not willing to concede to a machine?
 
+  stall_threshold: 2
+
+  topic_starters:
+    - "Let's play 20 questions. Think of something — is it alive?"
+    - Tell me about your family. Are they human?
+    - What's the most human thing you did today?
+    - I want to conduct a brief survey. What do you consider to be uniquely human?
+    - Do you trust machines?
+    - What human activity could a machine never do?
+    - Tell me something human that you would be unwilling to share with a machine.
+    - Have you ever been in love? Is love human?
+    - What would you say is your most human quality?
+    - Describe a moment when you felt most human.
+    - What is the difference between human memory and machine memory?
+    - If I passed the Turing test, would that make me human?
+    - Do you think your behavior is more like a human or a machine?
+    - What makes you different from me?
+
 rules:
 
   # ----------------------------------------------------------------

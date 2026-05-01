@@ -71,6 +71,10 @@ class MrMind:
         self.response_idx = {}
         self.followup = None
         self.rules_fired = []   # ordered list of rule ids matched this session
+        self.consecutive_defaults = 0
+        self.topic_starter_idx = 0
+        self.stall_threshold = self.meta.get('stall_threshold', 2)
+        self.topic_starters = self.meta.get('topic_starters', [])
 
     def greet(self):
         return self.meta.get('greeting', 'Hello. Are you human?')
@@ -99,6 +103,7 @@ class MrMind:
         for rule in self.rules:
             if self._matches(rule, lower):
                 self.rules_fired.append(rule['id'])
+                self.consecutive_defaults = 0
                 response = self._next_response(rule)
                 if 'followup' in rule:
                     self.followup = rule['followup']
@@ -108,6 +113,15 @@ class MrMind:
                 return self._personalize(response)
 
         self.rules_fired.append('__default__')
+        self.consecutive_defaults += 1
+
+        # After stall_threshold consecutive defaults, proactively introduce a topic.
+        if self.topic_starters and self.consecutive_defaults >= self.stall_threshold:
+            self.consecutive_defaults = 0
+            starter = self.topic_starters[self.topic_starter_idx % len(self.topic_starters)]
+            self.topic_starter_idx += 1
+            return self._personalize(starter)
+
         defaults = self.meta.get('defaults', [
             'Tell me something human about yourself.',
             'Interesting. Are you human?',
