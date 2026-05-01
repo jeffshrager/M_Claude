@@ -1,0 +1,22 @@
+Session Summary -- 2026-04-30 18:34:40
+============================================================
+
+Duration:       0 seconds
+Exchanges:      8
+User name:      (not captured)
+Transcript:     conversations/20260430_183440.txt
+
+Rules fired (5 unique):
+  greeting
+  user_is_human
+  user_has_brain
+  what_do_you_like
+  user_has_mother
+
+First exchange:
+  You:    Hello
+  MrMind: Hello. Are you human?
+
+Last exchange:
+  You:    bye
+  MrMind: Goodbye. I still haven't determined whether you are human.

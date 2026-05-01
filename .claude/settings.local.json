@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 mrmind.py)",
+      "Bash(python3 *)",
+      "Skill(claude-api)"
+    ]
+  }
+}

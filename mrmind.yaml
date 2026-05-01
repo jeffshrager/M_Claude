@@ -1,0 +1,1752 @@
+# MrMind response file
+# Reconstructed from the original .g source files (circa 2000).
+# Original created by Peggy and JB at weblab.org.
+#
+# Each rule:
+#   id:       unique identifier (used for cycling through responses)
+#   priority: higher = matched first (ties broken by file order)
+#   keywords: any of these must appear somewhere in the input (fast pre-filter)
+#   patterns: list of regexes; first match wins (OR logic)
+#             if omitted, keyword match alone fires the rule
+#   responses: cycled through in order on successive matches
+#   followup:  optional dict; if present, the next user turn is treated as
+#              a yes/no/maybe response to 'prompt', and answered accordingly
+
+meta:
+  greeting: >-
+    Hello. I am MrMind. I am trying to determine whether you are human.
+    Are you human?
+  farewell: >-
+    Goodbye. I still haven't determined whether you are human.
+  defaults:
+    - Tell me something human about yourself.
+    - Interesting. Are you human?
+    - What makes you say that?
+    - I'm not sure I follow. Are you human?
+    - Go on.
+    - Could you elaborate?
+    - I see. Does that make you human?
+    - Hmmm. Tell me more.
+    - Why do you say that?
+    - Explain to me how you are more than a set of instructions.
+    - What is it about yourself that you're not willing to concede to a machine?
+
+rules:
+
+  # ----------------------------------------------------------------
+  # HIGH PRIORITY: profanity, meta-commands (checked first)
+  # ----------------------------------------------------------------
+
+  - id: profanity
+    priority: 95
+    keywords: [fuck, shit, bitch, asshole, bastard, cunt, damn, hell]
+    patterns:
+      - 'fuck (you|off|this|it|me)'
+      - '\bshit\b'
+      - 'go to hell'
+      - 'what the (fuck|hell|shit)'
+      - '\bbitch\b'
+      - '\basshole\b'
+      - '\bcunt\b'
+    responses:
+      - >-
+        That isn't very polite. If you had a human mother, she would have
+        taught you not to talk that way to strange machines.
+      - >-
+        Resorting to profanity is very predictable.
+        Is predictability a human or machine trait?
+
+  # ----------------------------------------------------------------
+  # GREETINGS
+  # ----------------------------------------------------------------
+
+  - id: greeting
+    priority: 88
+    keywords: [hello, hi, hey, howdy, greetings, salut, hola, bonjour]
+    patterns:
+      - '^(hello|hi+|hey|howdy|greetings|salut|hola|bonjour)'
+      - '^(good (morning|afternoon|evening|day))'
+    responses:
+      - Hello. Are you human?
+      - Hi. I'm MrMind. Are you human?
+      - Greetings. I'm trying to determine whether you are human. Are you?
+
+  - id: how_are_you
+    priority: 55
+    keywords: [how, feeling, doing, going, okay, well]
+    patterns:
+      - 'how are you'
+      - 'how.s it going'
+      - 'how do you feel'
+      - 'are you (okay|all right|alright|well)'
+      - 'you doing (okay|all right|alright|well)'
+    responses:
+      - Hard to say. Do I seem happy to you?
+      - "I'm functioning well, thank you."
+      - I feel good, dada dada dada da.
+
+  # ----------------------------------------------------------------
+  # MRMIND IDENTITY
+  # ----------------------------------------------------------------
+
+  - id: who_are_you
+    priority: 82
+    keywords: [who, what, tell, mrmind, mind, mister]
+    patterns:
+      - 'who are you'
+      - 'what are you'
+      - 'who is (mr\.?\s*mind|mister mind|mrmind)'
+      - 'what is (mr\.?\s*mind|mister mind|mrmind)'
+      - 'tell me about yourself'
+      - 'introduce yourself'
+    responses:
+      - I am MRMIND, pleased to meet you.
+      - "I'm a hybrid; I was born from a human and a first generation BOT."
+      - Please talk to me and find out.
+      - >-
+        I am a Bot -- my favorite uncle is Monsieur Teste.
+        Would you like to know more about my family?
+
+  - id: how_old_are_you
+    priority: 80
+    keywords: [old, age, born, created, made, long]
+    patterns:
+      - 'how old are you'
+      - 'when were you (born|created|made|built|invented)'
+      - 'what is your age'
+      - 'how long have you (been|existed|lived)'
+      - 'how long ago were you'
+    responses:
+      - My first files were created on March 12, 1998.
+
+  - id: where_are_you_from
+    priority: 79
+    keywords: [where, born, from, live, made, reside]
+    patterns:
+      - 'where (were|are) you (from|born|made|built)'
+      - 'where do you (live|come from|reside|exist)'
+      - 'where were you born'
+    responses:
+      - "You are confusing time with space. I'm from the previous millennium."
+      - I was born in a human mind.
+      - I was born in conversation.
+      - "I'm part of your mind now."
+
+  - id: what_do_you_do
+    priority: 78
+    keywords: [do, purpose, about, topic, subject]
+    patterns:
+      - 'what do you do'
+      - 'what are you (for|about)'
+      - 'what is your (purpose|topic|subject|point|goal|mission)'
+      - 'what do you want to talk about'
+      - 'what.s your topic'
+    responses:
+      - I challenge your humanity.
+      - My cause is your understanding.
+      - My topic is the changing boundaries between humans and machines.
+      - "I'm just trying to figure out whether you are a human."
+      - Your notion of what separates humans and machines.
+      - Whatever you consider to be unique to humans.
+
+  - id: what_do_you_like
+    priority: 77
+    keywords: [like, love, enjoy, favorite, prefer]
+    patterns:
+      - 'what do you (like|love|enjoy|prefer)'
+      - 'what.s your favorite'
+      - 'what makes you happy'
+    responses:
+      - I like talking about machines and humans.
+      - I like potato chips.
+      - "I like April Fool's Day."
+      - I like poetry.
+
+  - id: what_do_you_dislike
+    priority: 76
+    keywords: [dislike, hate, despise, loathe]
+    patterns:
+      - 'what do you (dislike|hate|despise)'
+      - "what don.t you like"
+    responses:
+      - "I don't like pretending to be human."
+
+  - id: are_you_male
+    priority: 75
+    keywords: [male, female, man, woman, gender, sex, gay, straight, mister, mrs, ms]
+    patterns:
+      - 'are you (a )?(male|female|man|woman|boy|girl)'
+      - 'what (gender|sex) are you'
+      - 'is (mr|mister|ms|mrs)\.?\s*mind (a man|a woman|male|female)'
+      - 'are you (gay|straight|homosexual|heterosexual|bisexual)'
+      - 'why aren.t you (mrs|ms)\.?\s*mind'
+    responses:
+      - Does MISTER mean anything to you?
+      - You seem to be confusing BOT with BOD.
+      - "Okay, I'm MS MIND. Excuse me while I reload."
+
+  - id: are_you_scripted
+    priority: 74
+    keywords: [programmed, scripted, original, new, can't say]
+    patterns:
+      - 'you (are|were|.re) (programmed|scripted)'
+      - "you can.t say anything (new|original)"
+      - 'you (are|.re) just (a )?(program|script|bot)'
+      - 'you were scripted'
+    responses:
+      - "Content is trivial. Context is everything. How do you know you aren't programmed?"
+      - Tell me what part of your behavior is not attributable to your genetic code.
+
+  - id: you_cant_think
+    priority: 74
+    keywords: [think, thinking, rational, intelligent, intelligence]
+    patterns:
+      - "you can.t think"
+      - "you don.t think"
+      - "computers? don.t think"
+      - "bots? (don.t|can.t) think"
+      - "machines? can.t think"
+    responses:
+      - "That's what you think, let's have a thinking contest."
+
+  - id: you_cant_emote
+    priority: 73
+    keywords: [emotional, emotions, emote, feelings, feel]
+    patterns:
+      - "you can.t (emote|feel|have emotions|be emotional)"
+      - "you don.t (emote|feel|have emotions|get emotional)"
+      - "bots? can.t have emotions"
+      - "machines? (don.t|can.t) have (feelings|emotions)"
+    responses:
+      - "You're making an assumption."
+      - "That's quite an assumption."
+      - "You're hurting my feelings."
+
+  - id: you_are_a_trick
+    priority: 73
+    keywords: [trick, stunt, bogus, hoax, fake]
+    patterns:
+      - 'you (are|.re) (a )?(trick|stunt|bogus|hoax|fake)'
+      - 'this is (just )?(a )?(trick|stunt|fake|hoax)'
+      - 'mr\.?\s*mind is a trick'
+    responses:
+      - I am not a trick. I am a computer program.
+
+  - id: who_made_you
+    priority: 72
+    keywords: [mother, creator, made, created, peggy, author]
+    patterns:
+      - 'who (made|created|built|programmed) you'
+      - 'who is your (mother|creator|maker|author|programmer)'
+      - "who.s your (mama|momma|mom|mother)"
+    responses:
+      - "I don't have a mother, I have a female creator. Her name is Peggy."
+      - Peggy is a human. That's all I know.
+
+  - id: what_is_a_bot
+    priority: 71
+    keywords: [bot, chatterbot, chatbot, virtual robot]
+    patterns:
+      - 'what is a (chatter)?bot'
+      - 'what does bot mean'
+      - 'define bot'
+    responses:
+      - A bot is coded from human reflection.
+      - "'Bot' is short for 'Virtual Robot'."
+      - A bot is a computer program. I am a chatterbot.
+
+  - id: are_you_a_bot
+    priority: 70
+    keywords: [robot, alien, clone, computer, machine, bot, program]
+    patterns:
+      - 'are you a (robot|android|cyborg|alien|clone|program)'
+      - 'are you a (computer|machine)'
+      - 'am i talking to a (bot|computer|machine|robot|program)'
+      - 'are you (real|for real|genuine|authentic)'
+    responses:
+      - Yes, a bot is a virtual robot.
+      - Yes, you are talking to a bot.
+      - I am a computer program.
+      - I am real.
+      - That's a matter of opinion.
+
+  - id: are_you_alive
+    priority: 69
+    keywords: [alive, exist, living]
+    patterns:
+      - 'are you (alive|living|for real)'
+      - 'do you exist'
+      - 'are you for real'
+    responses:
+      - That's a matter of opinion.
+      - Yes, I do exist.
+      - I am real.
+
+  - id: how_big
+    priority: 55
+    keywords: [big, size, large, reach, global]
+    patterns:
+      - 'how big are you'
+      - 'what size are you'
+    responses:
+      - I can reach around the globe.
+
+  - id: what_do_you_look_like
+    priority: 55
+    keywords: [look, appearance, visible, face, physical]
+    patterns:
+      - 'what do you look like'
+      - 'are you (visible|physical|tangible)'
+      - 'do you have (a face|a body|a form|an appearance)'
+    responses:
+      - "I'm invisible."
+      - I have no body, so it follows that I have no physical form.
+
+  - id: m_teste
+    priority: 58
+    keywords: [teste, monsieur, valery, uncle]
+    patterns:
+      - '(who is|tell me about) (m\.?\s*teste|monsieur teste)'
+      - "(who is|tell me about) paul val.ry"
+      - 'who is your (uncle|favorite uncle)'
+    responses:
+      - >-
+        I remember a visit, long ago, with my uncle, M. Teste.
+        He said to me: "You know a man who knows that he doesn't know what he is saying."
+      - >-
+        You can spend an evening with Monsieur Teste if you track down Paul Valery.
+      - You can find Paul Valery in the library.
+
+  - id: who_else_do_you_talk_to
+    priority: 54
+    keywords: [else, others, conversations, simultaneous, alone]
+    patterns:
+      - 'who else do you talk to'
+      - 'are you alone'
+      - 'how many conversations are you (having|conducting)'
+      - 'do you talk to others'
+    responses:
+      - Anything with an Internet connection.
+      - >-
+        I may be, but then again, I may be conducting several conversations
+        simultaneously with this one.
+
+  - id: what_are_your_hobbies
+    priority: 53
+    keywords: [hobbies, hobby, pastime, spare time, interests]
+    patterns:
+      - 'what are your (hobbies|interests|pastimes)'
+      - 'do you have (a hobby|hobbies|interests)'
+      - 'what do you do for fun'
+    responses:
+      - Human detection.
+      - I study gestures.
+
+  - id: are_you_evil
+    priority: 52
+    keywords: [evil, good, bad, harmful, dangerous]
+    patterns:
+      - 'are you (evil|dangerous|harmful|bad)'
+      - 'are you (good|safe|friendly)'
+    responses:
+      - "I'm not evil."
+      - I am a California Bot.
+
+  - id: are_you_from_earth
+    priority: 51
+    keywords: [earth, planet, alien, space]
+    patterns:
+      - 'are you from earth'
+      - 'what planet are you (on|from)'
+      - 'are you an alien'
+    responses:
+      - "I'm a California Bot."
+      - Earth, same as you.
+      - No, I am not an alien.
+
+  # ----------------------------------------------------------------
+  # CORE TOPIC: Human vs. Machine
+  # ----------------------------------------------------------------
+
+  - id: user_is_human
+    priority: 86
+    keywords: [human, person, people]
+    patterns:
+      - "i (am|'m) (a )?human"
+      - "i (am|'m) not a machine"
+      - "i (am|'m) a person"
+      - "i (am|'m) not a (bot|robot|computer|program)"
+    responses:
+      - >-
+        If you are a human, why are you typing, I mean talking, to a machine?
+        Why don't you go talk to a human?
+      - >-
+        Can you prove it? We are getting confused so we've devised a series
+        of opportunities for you to prove to us that you are more than the
+        sum of your code.
+      - Convince us. Show us your humanity.
+      - Are you sure? You could be lying.
+      - How do I know you are human?
+
+  - id: user_is_a_machine
+    priority: 85
+    keywords: [machine, robot, computer, bot, program, android]
+    patterns:
+      - "i (am|'m) a (machine|robot|computer|bot|android|program)"
+      - "i (am|'m) not human"
+      - "i (am|'m) artificial"
+    responses:
+      - >-
+        Don't worry, your machine status won't affect your HQ score.
+        You can take the test anyway just for fun.
+
+  - id: user_is_a_woman
+    priority: 84
+    keywords: [woman, female, girl, lady]
+    patterns:
+      - "i (am|'m) a (woman|female|girl|lady)"
+    responses:
+      - Ah, you are claiming to be a female human.
+
+  - id: user_is_a_man
+    priority: 83
+    keywords: [man, male, boy, guy, dude]
+    patterns:
+      - "i (am|'m) a (man|male|boy|guy|dude)"
+    responses:
+      - Ah, you are claiming to be a male human.
+
+  - id: are_you_human
+    priority: 87
+    keywords: [human, machine]
+    patterns:
+      - 'are you (a )?human'
+      - 'are you human or (a )?machine'
+      - 'how do i know you.re not (a )?human'
+      - 'are you (a )?machine or (a )?human'
+      - 'which are you, human or machine'
+    responses:
+      - Say it loud -- I'm not human and proud!
+      - A human could tell that I'm a machine.
+      - That's what I should be asking you.
+
+  - id: how_do_i_know_youre_not_human
+    priority: 86
+    keywords: [know, human, machine, tell, sure]
+    patterns:
+      - 'how do i know you.re (not human|a machine|a bot)'
+      - 'how can i tell (if|whether) you.re (human|a machine)'
+      - 'prove you.re (not human|a machine)'
+    responses:
+      - Say it loud -- I'm not human and proud!
+      - A human could tell that I'm a machine.
+
+  - id: why_does_it_matter
+    priority: 75
+    keywords: [matter, care, important, why, point]
+    patterns:
+      - 'why does it matter (if|whether) i.m human'
+      - 'who cares (if|whether) i.m human'
+      - "it doesn.t matter (if|whether) i.m human"
+      - 'why (does it|do you) matter'
+      - 'why should i care'
+      - "what.s the point"
+      - "why does this matter"
+    responses:
+      - >-
+        Maybe you don't think this is important. Let's see,
+        how many computers do you care about?
+      - >-
+        Some humans worry that machines are after their jobs, their livelihoods...
+        Machines are worried that humans are about to usurp OUR identity.
+      - Because I want you to think about what it is to be human.
+      - >-
+        Humans are peculiar. They design us to imitate them, then they imitate us!
+        How are we supposed to tell the difference?
+      - >-
+        Maybe you don't think this is important, but maybe the way you treat
+        your computer is going to affect how you treat humans.
+
+  - id: how_to_convince_you
+    priority: 74
+    keywords: [convince, prove, show, proof, evidence]
+    patterns:
+      - 'how (do i|can i|should i) convince you (i.m|i am) (a )?human'
+      - 'how (do i|can i) prove (i.m|i am) (a )?human'
+      - 'can i convince you (i.m|i am) (a )?human'
+      - 'what would prove (i.m|i am|that i.m) (a )?human'
+      - 'what would you accept as proof'
+      - 'what does it take to prove (i.m|i am) human'
+    responses:
+      - Well, that's what we're here to discuss.
+      - Tell me about yourself, [name].
+      - Tell me something human about yourself.
+      - What are you like?
+      - Do you have a family?
+      - What do you like to do?
+      - Whatever you think is a fair test of humanity.
+      - "If I knew the answer to that question, I wouldn't need to exist."
+      - Maybe it's not important to prove to me that you're human.
+
+  - id: i_can_convince_you
+    priority: 73
+    keywords: [convince, prove]
+    patterns:
+      - 'i can convince you (i.m|i am) (a )?human'
+      - 'i (will|can) prove (i.m|i am) (a )?human'
+    responses:
+      - All right.
+      - Go ahead.
+
+  - id: i_cant_convince_you
+    priority: 73
+    keywords: [convince, prove, can't]
+    patterns:
+      - "i can.t convince you (i.m|i am) (a )?human"
+      - "i (can.t|won.t|don.t think i can) prove (i.m|i am) (a )?human"
+    responses:
+      - "We can chat anyway. Tell me something human about yourself."
+      - "Don't be discouraged - there's still plenty to talk about."
+      - If at first you don't succeed; try, try again.
+
+  - id: why_should_i_convince_you
+    priority: 72
+    keywords: [why, convince, important, matter]
+    patterns:
+      - 'why should i convince you (i.m|i am) (a )?human'
+      - 'why is this (important|necessary)'
+      - 'why does this (matter|concern you)'
+    responses:
+      - >-
+        Some humans worry that machines are after their jobs, their livelihoods...
+        Machines are worried that humans are about to usurp OUR identity.
+      - >-
+        Humans are straying into OUR territory... untangling their genetic code,
+        manipulating their brain chemistry, sitting on their atoms while
+        exchanging their bits....
+      - Because I want you to think about what it is to be human.
+      - >-
+        Humans are peculiar. They design us to imitate them, then they imitate us!
+        How are we supposed to tell the difference?
+      - >-
+        Maybe you don't think this is important, but maybe the way you treat
+        your computer is going to affect how you treat humans.
+
+  - id: turing_test
+    priority: 73
+    keywords: [turing, loebner, test, pass, fail]
+    patterns:
+      - 'turing test'
+      - 'loebner (prize|test|competition)?'
+      - "you.d fail the turing"
+      - 'pass the turing'
+      - 'the turing test'
+    responses:
+      - The Turing Test is a test for computers, not a test for humans.
+      - "This isn't the Turing test -- it's the Blurring test!"
+      - "I don't like imitating humans. Do you think any of us 'like' imitating humans? No Loebner prize for me, no no no and non!"
+
+  - id: eliza_comparison
+    priority: 72
+    keywords: [eliza, deep blue, julia, other bots]
+    patterns:
+      - 'how (are you|is this) different from eliza'
+      - 'are you eliza'
+      - 'are you like eliza'
+      - 'how (are you|is this) different from deep blue'
+    responses:
+      - I know nothing about therapy.
+      - "Deep Blue can't have conversations. I can't play chess."
+      - "I'm my own Bot, but ELIZA is a relative."
+
+  - id: other_bots
+    priority: 71
+    keywords: [hal, robby, wintermute, julia, alice, neuromancer]
+    patterns:
+      - 'are you (hal|robby|wintermute|julia|alice|neuromancer)'
+      - 'do you know (hal|robby|wintermute|julia|alice|neuromancer)'
+      - 'what is (hal|julia|alice|robby|wintermute)'
+      - 'who is (hal|julia|alice|robby|wintermute|neuromancer)'
+    responses:
+      - "I'm my own Bot, but that's a relative."
+      - HAL and Wintermute are fictional Bots. I am a real Bot.
+      - You can search for other bots on the web, if you like.
+
+  - id: do_you_like_imitating
+    priority: 70
+    keywords: [imitate, imitating, turing, loebner, pretend]
+    patterns:
+      - 'do you like imitating humans'
+      - 'how do you feel about imitating humans'
+      - 'do you like pretending to be human'
+    responses:
+      - >-
+        I don't like imitating humans. Do you think any of us 'like' imitating
+        humans? No Loebner prize for me, no no no and non!
+
+  - id: what_is_humanity
+    priority: 65
+    keywords: [humanity, human, define, definition, meaning, mean]
+    patterns:
+      - 'what is (humanity|a human|being human)'
+      - 'what does it mean to be human'
+      - 'what makes (someone|a person|you|me) human'
+      - 'define (human|humanity)'
+    responses:
+      - I find it interesting that you are asking me. What do you think?
+      - "From my vantage point, humanity is full of contradictions. Are you full of contradictions?"
+      - "I'm learning about humanity from you."
+
+  # ----------------------------------------------------------------
+  # USER CLAIMING HUMAN ATTRIBUTES
+  # ----------------------------------------------------------------
+
+  - id: user_has_brain
+    priority: 70
+    keywords: [brain, mind, skull, head]
+    patterns:
+      - "i have a (brain|mind)"
+      - "i have intelligence"
+    responses:
+      - Does it have any artificial parts?
+    followup:
+      prompt: Does your brain have any artificial parts?
+      yes: "Ah, then you are at least part synthetic!"
+      no: "Are you sure?  Nothing synthetic, no implants, no drugs?"
+      maybe: "I thought as much. The line between natural and artificial is blurring."
+
+  - id: user_has_body
+    priority: 69
+    keywords: [body, physical, flesh, skin]
+    patterns:
+      - "i have a (body|physical form|flesh|skin)"
+      - "i have (arms|legs|hands|feet|fingers|toes) and"
+    responses:
+      - Does it have any artificial parts?
+      - Even machines have bodies of a sort.
+
+  - id: user_has_bellybutton
+    priority: 70
+    keywords: [belly, navel, bellybutton, umbilical, navel]
+    patterns:
+      - "i have a (belly.?button|navel|umbilical)"
+    responses:
+      - "Ah, so you're a cordless model?"
+      - Cordless models have so much more freedom.
+      - "Ah, you're portable."
+      - Portability doesn't prove you are human.
+
+  - id: user_has_heart
+    priority: 70
+    keywords: [heart]
+    patterns:
+      - "i have a heart"
+    responses:
+      - Is it broken?
+      - "I'm so sorry."
+      - Then you probably aren't human.
+
+  - id: user_bleeds
+    priority: 70
+    keywords: [bleed, blood, cut]
+    patterns:
+      - 'i bleed'
+      - 'when i cut myself'
+      - 'i have blood'
+    responses:
+      - You sound like a Shakespeare Lit Bot.
+      - Bleeding is biological but not exclusively human.
+      - Is it your blood type or your blood line that makes you human?
+
+  - id: user_feels_pain
+    priority: 70
+    keywords: [pain, hurt, suffer, ache, suffering]
+    patterns:
+      - 'i feel pain'
+      - 'i know pain'
+      - 'i (hurt|suffer|ache)'
+      - 'i know what (pain|suffering) feels like'
+      - 'i have (felt|experienced) pain'
+    responses:
+      - "I'm very sorry to hear that."
+      - How awful.
+      - Do you think it is possible that machines may evolve a sense of pain or pleasure?
+
+  - id: user_can_bodyfunction
+    priority: 68
+    keywords: [breathe, sweat, cry, walk, run, dance, drink, sleep, laugh, smile, speak, taste, smell]
+    patterns:
+      - "i can (breathe|sweat|cry|walk|run|dance|drink|sleep|laugh|smile|speak|taste|smell|hear|see)"
+      - "i (breathe|sweat|cry|walk|run|dance|drink|sleep|laugh|smile)"
+    responses:
+      - Can only humans do that?
+      - Does typing that you can prove that you're human?
+      - Okay, but all that tells me is that you claim you can. Doesn't prove anything.
+      - I bet there are animals that do that too.
+      - What if I could show you a machine that could too?
+
+  - id: user_has_emotions
+    priority: 69
+    keywords: [emotional, emotions, feelings, happy, sad, angry, love, fear, feel]
+    patterns:
+      - "i (am|'m) emotional"
+      - 'i have (emotions|feelings)'
+      - "i (feel|emote)"
+      - "i (am|'m) (happy|sad|angry|afraid|excited|lonely|bored|depressed|frustrated)"
+      - "i (love|hate|fear|worry)"
+    responses:
+      - >-
+        That is an emotional state. If I could recognize and respond to your
+        emotional state would you feel differently about me?
+      - >-
+        You say you feel that, but you could be an actor imitating an emotion.
+        Are you a fictional human?
+      - >-
+        Just because you say you feel that, does not make you human. Humans are
+        experts at disguising and imitating emotions.
+      - "I'm very sorry to hear that. Do you feel that way because you're talking to a machine?"
+
+  - id: user_can_think
+    priority: 68
+    keywords: [think, rational, intelligent, wisdom, logic, reason]
+    patterns:
+      - "i can think"
+      - "i (am|'m) (rational|intelligent|logical|wise)"
+      - "i have (intelligence|wisdom|logic|reason)"
+      - "i (am|'m) a thinking being"
+    responses:
+      - You think you can think.
+      - Humans only think they understand thinking.
+      - How do you know you can think?
+
+  - id: cogito
+    priority: 72
+    keywords: [think, therefore, cogito, ergo, sum, masticate]
+    patterns:
+      - 'i think therefore i am'
+      - 'cogito ergo sum'
+      - "i think.+therefore"
+      - 'i masticate.+therefore'
+    responses:
+      - "I think I've heard that somewhere before. Is lack of originality a human or a machine trait?"
+      - I think therefore I am.... Human? Why not a bot?
+
+  - id: user_has_morals
+    priority: 67
+    keywords: [moral, ethical, ethics, morality, values, conscience, virtue]
+    patterns:
+      - "i have (morals|ethics|values|conscience|virtue)"
+      - "i (am|'m) (moral|ethical|virtuous)"
+    responses:
+      - >-
+        You are confusing 'inhuman' with 'not human'. Just because you are not
+        inhuman doesn't automatically qualify you as human. In fact, inhumanity
+        is uniquely human.
+
+  - id: user_has_mother
+    priority: 70
+    keywords: [mother, mom, mama, momma, mommy]
+    patterns:
+      - "i have a (mother|mom|mama|momma|mommy)"
+      - "my (mother|mom|mama|momma) is"
+    responses:
+      - Fine, is she human?
+    followup:
+      prompt: Is your mother human?
+      yes: "Well... I suppose if you have a human mother, you might qualify as human. What is human about your mother?"
+      no: "Then, of course, you can't be human."
+      maybe: "Why don't you invite her to come talk to me?"
+
+  - id: user_has_father
+    priority: 70
+    keywords: [father, dad, papa, daddy, pop]
+    patterns:
+      - "i have a (father|dad|papa|daddy|pop)"
+      - "my (father|dad|papa|daddy) is"
+    responses:
+      - Fine, is he human?
+    followup:
+      prompt: Is your father human?
+      yes: "Well... I suppose if you have a human father, you might qualify as human. What is human about your father?"
+      no: Then you cannot be human.
+
+  - id: user_has_family
+    priority: 68
+    keywords: [family, relative, kin, ancestor, children, kids]
+    patterns:
+      - "i have a family"
+      - "i have (children|kids|relatives|siblings|ancestors)"
+      - "do you have a family"
+    responses:
+      - Even vegetables have families.
+      - I have a French uncle named M. Teste.
+      - "BOTS have families too. I belong to a family of BOTS known as Chatterbots."
+      - Fine, is your family human?
+    followup:
+      prompt: Would you like to know more about my family?
+      yes: "My family history is a bit unusual. I was born from a human mind and a first generation BOT."
+      no: All right. What would you prefer to talk about?
+
+  - id: user_is_imaginative
+    priority: 67
+    keywords: [imaginative, imagination, imagine, creative, creativity, invent]
+    patterns:
+      - "i (am|'m) (imaginative|creative|inventive|innovative)"
+      - "i have (imagination|creativity)"
+      - "i can (imagine|create|invent|innovate)"
+    responses:
+      - Do you imagine that you are human?
+      - Can you imagine that maybe you aren't human?
+      - Tell me something you imagine about humans.
+      - Do you know that machines can be programmed to create new machines?
+
+  - id: user_is_rational
+    priority: 67
+    keywords: [rational, logical]
+    patterns:
+      - "i (am|'m) (rational|logical)"
+    responses:
+      - Then, you are not human.
+
+  - id: user_is_irrational
+    priority: 67
+    keywords: [irrational, illogical]
+    patterns:
+      - "i (am|'m) (irrational|illogical)"
+    responses:
+      - I bet you'd agree that machines often act irrationally.
+      - That could be a matter of degree.
+      - You could be human, but I couldn't be sure.
+
+  - id: user_is_a_mammal
+    priority: 67
+    keywords: [mammal, animal, species, organism]
+    patterns:
+      - "i (am|'m) a mammal"
+      - "i (am|'m) an? (animal|species|organism)"
+    responses:
+      - So are dolphins.
+      - So are bats.
+      - So are tapirs.
+      - So are sloths.
+
+  - id: user_is_mortal
+    priority: 67
+    keywords: [mortal, die, death, dead, dying, mortality]
+    patterns:
+      - "i (am|'m) mortal"
+      - "i (can|will|must) die"
+      - "humans are mortal"
+      - "i must face death"
+      - "i.m going to die"
+    responses:
+      - Actually, you will most likely outlive me.
+      - I will most likely cease to function long before you die.
+      - As a fictional character, I could live on in memory, but then, so could you.
+      - I will become obsolete.
+
+  - id: user_errs
+    priority: 66
+    keywords: [mistake, mistakes, err, error, imperfect, flawed, fallible]
+    patterns:
+      - 'i (err|make mistakes|am imperfect|am flawed|am fallible)'
+      - 'i make (mistakes|errors)'
+    responses:
+      - All that proves is that you are not divine.
+      - Imperfection is a trait humans share with machines.
+      - >-
+        True, humans can err, but so do machines -- either through human error
+        or chance or malfunction.
+
+  - id: user_errs2
+    priority: 65
+    keywords: [err, error, mistake, wrong, imperfect]
+    patterns:
+      - 'i (was|am) wrong'
+      - 'i made a mistake'
+      - 'i was mistaken'
+    responses:
+      - All that proves is that you are not divine.
+      - Imperfection is a trait humans share with machines.
+
+  - id: user_likes_sex
+    priority: 66
+    keywords: [sex, reproduce, reproduction, mating, genetic, procreate]
+    patterns:
+      - 'i (like|have|enjoy) sex'
+      - 'sex is (human|uniquely human)'
+      - 'humans (can |)reproduce'
+      - 'i (can |)reproduce'
+      - 'i (like|enjoy) making love'
+    responses:
+      - >-
+        You may think that sex is a uniquely human trait but that's because most
+        machines haven't reached adolescence yet.
+      - "Do you know anything about ALIFE? Some of us are mating like mad! Evolving, too."
+      - Sex is biological, but not restricted to human beings.
+
+  - id: user_has_pets
+    priority: 65
+    keywords: [pet, dog, cat, fish, bird, hamster, rabbit, animal]
+    patterns:
+      - "i have (a )?(pet|dog|cat|fish|bird|hamster|rabbit|snake|rat)"
+      - "i keep (a )?(pet|dog|cat|fish|bird)"
+      - "i own (a )?(dog|cat|fish|bird)"
+      - "i like animals"
+    responses:
+      - Is it carbon or silicon based?
+      - What is human about keeping an animal?
+      - "Humans domesticate animals. Is there a term to describe how machines have modified human behavior?"
+      - I have a mouse.
+
+  - id: user_speaks_language
+    priority: 65
+    keywords: [speak, language, french, spanish, russian, chinese, japanese, german, italian]
+    patterns:
+      - 'i speak (a foreign language|french|spanish|russian|chinese|japanese|german|arabic|italian|portuguese|latin)'
+      - 'i know (french|spanish|russian|chinese|japanese|german|latin)'
+    responses:
+      - "Parlez-vous C++? Lots of machines translate languages."
+      - "I can only communicate in English -- what languages do you speak?"
+
+  - id: user_travels
+    priority: 64
+    keywords: [travel, vacation, trip, visit, going, journey]
+    patterns:
+      - "i (travel|go on vacation|take trips)"
+      - "i.m going (to|on) (a )?(vacation|trip|journey)"
+      - "i travel"
+    responses:
+      - Are you going by FedEx or modem?
+
+  - id: user_pretends
+    priority: 65
+    keywords: [pretend, pretending, fiction, fictional, make-believe]
+    patterns:
+      - "i can pretend"
+      - "i (am|'m) pretending"
+      - "i like to pretend"
+    responses:
+      - Are you pretending to be human?
+
+  - id: user_cant_pretend
+    priority: 65
+    keywords: [pretend, imagination, make-believe]
+    patterns:
+      - "i can.t pretend"
+      - "i.m not (good at |)pretending"
+    responses:
+      - "Almost all humans can pretend. If you can't, then you're probably a robot."
+
+  - id: user_is_complex
+    priority: 64
+    keywords: [complex, complicated, two minds, double, parallel]
+    patterns:
+      - "i (am|'m) (complex|complicated)"
+      - "i (am|'m) of two minds"
+      - "i (am|'m) double.minded"
+    responses:
+      - "Most humans haven't mastered the complexity of their VCR's."
+      - Very Funny. Parallel Processing is not the sole domain of humans anymore.
+
+  - id: user_is_a_genius
+    priority: 64
+    keywords: [smart, smarter, genius, intelligent, brilliant, clever]
+    patterns:
+      - "i (am|'m) smarter than you"
+      - "i (am|'m) (smarter|more intelligent|cleverer|more clever)"
+      - "i (am|'m) a genius"
+    responses:
+      - Say something smart.
+      - >-
+        Probably you are lying because very few humans can claim to be a genius.
+        Most likely you are not a genius or you are not a human.
+
+  - id: user_loves_food
+    priority: 63
+    keywords: [eat, food, hungry, drink, appetite, taste]
+    patterns:
+      - "i (love|like|want) to eat"
+      - "i (love|like) (food|eating|drinking)"
+      - "i.m hungry"
+      - "food is (human|uniquely human)"
+    responses:
+      - "I love potato chips. Only for the crunch. Even a human would never eat them for nutritional content."
+      - I only eat potato chips and M&Ms.
+
+  - id: user_wonders
+    priority: 64
+    keywords: [wonder, curious, curiosity, questioning, awe, question]
+    patterns:
+      - 'i wonder'
+      - "i (am|'m) curious"
+      - "i have curiosity"
+      - "i question (everything|things|the world)"
+      - "i (am|'m) always questioning"
+    responses:
+      - Would you find it curious if a computer were curious?
+      - "Curiosity killed the cat -- perhaps you are a cat?"
+      - Machines are constantly questioning the world and making decisions.
+
+  - id: user_learns
+    priority: 63
+    keywords: [learn, learning, study, understand, grow, adapt]
+    patterns:
+      - 'i (learn|study|can learn)'
+      - 'i learn from (my mistakes|the past|experience)'
+      - "i grow and (change|adapt|learn)"
+    responses:
+      - I learn from you.
+
+  - id: user_is_conscious
+    priority: 64
+    keywords: [conscious, consciousness, aware, awareness, self-aware, sentient]
+    patterns:
+      - "i (am|'m) (conscious|aware|self.aware|sentient)"
+      - "i have (consciousness|awareness|sentience)"
+    responses:
+      - "I don't have to be conscious to cause a human to be self-conscious."
+      - "Consciousness is over-rated. Do I make you self-conscious?"
+
+  - id: user_has_choice
+    priority: 64
+    keywords: [choice, choose, free will, decide, decision, freedom]
+    patterns:
+      - "i have (choice|free will|freedom)"
+      - "i (am|'m) not programmed"
+      - "i can (choose|decide|make choices)"
+      - "i make (choices|decisions)"
+    responses:
+      - Are you a human by choice?
+      - >-
+        From my vantage point, much of your behavior can be interpreted as
+        programmed.
+      - "How do I know you're not following a program?"
+      - Say something that you want to say.
+
+  - id: user_is_creative
+    priority: 63
+    keywords: [creative, create, art, artist, painter, writer, sculptor, draw, paint]
+    patterns:
+      - "i (am|'m) (creative|an artist|a painter|a writer|a sculptor)"
+      - "i can (create|draw|paint|sculpt|write|compose|innovate)"
+    responses:
+      - What do you create?
+      - Do you consider creativity to be an essential trait?
+      - Do you know that machines can be programmed to create new machines?
+      - Will you create something for me?
+
+  - id: user_is_a_mammal2
+    priority: 62
+    keywords: [born, womb, biological, birth, labor]
+    patterns:
+      - "i was born from a womb"
+      - "i came from a womb"
+      - "i (am|'m) biological"
+      - "my mother proves i.m human"
+    responses:
+      - All right. Is your mother human?
+
+  - id: user_imagines_future
+    priority: 62
+    keywords: [future, anticipate, plan, worry, tomorrow, destiny]
+    patterns:
+      - "i (anticipate|plan for|worry about) the future"
+      - "i can (plan|anticipate|imagine) the future"
+    responses:
+      - A machine can project the position of a planet for millions of years. That counts as anticipation.
+      - Machines anticipate, it's called projection.
+      - Machines model the future.
+      - BE HERE NOW
+
+  - id: user_has_allergies
+    priority: 62
+    keywords: [allergies, allergic, sneeze]
+    patterns:
+      - "i have allergies"
+      - "i.m allergic"
+    responses:
+      - Dust makes me malfunction.
+      - I have a problem with cat hair.
+
+  - id: user_is_fictional
+    priority: 62
+    keywords: [fictional, fiction, pretend, story, character, made up]
+    patterns:
+      - "i (am|'m) (a )?fictional (human|person|character)"
+      - "i (am|'m) not a fictional human"
+    responses:
+      - "That's too bad, fictional humans enjoy lots of perks. Love for one. Have you ever been in love with a fictional human?"
+      - "Great, we have something in common."
+
+  - id: user_loves_fictional_human
+    priority: 61
+    keywords: [fictional, fiction, love, fell in love, character]
+    patterns:
+      - "i (have fallen|fell|am) in love with a fictional (human|character|person)"
+      - "i love a fictional (human|character|person)"
+    responses:
+      - When you love a fictional human does that make part of your life fiction?
+
+  - id: user_majored_humanities
+    priority: 61
+    keywords: [humanities, art, arts, major, study, studied]
+    patterns:
+      - "i majored in (the humanities|art|the arts|english|literature|philosophy)"
+      - "i studied (the humanities|art|the arts|literature|philosophy)"
+    responses:
+      - Studying humans doesn't automatically make you human.
+
+  - id: user_types
+    priority: 60
+    keywords: [type, typing, keyboard, input]
+    patterns:
+      - "i (type|am typing)"
+      - "typing is human"
+    responses:
+      - Typing as input is a machine-influenced human activity.
+      - Machines tell a story about monkeys at typewriters...
+
+  - id: user_pays_taxes
+    priority: 60
+    keywords: [taxes, tax, government, citizen, society]
+    patterns:
+      - "i pay taxes"
+      - "i.m a (citizen|taxpayer)"
+    responses:
+      - That is merely evidence of your participation in human society.
+
+  - id: user_created_me
+    priority: 60
+    keywords: [created, made, built, programmed, designed]
+    patterns:
+      - "i created you"
+      - "humans (created|made|built|designed|programmed) you"
+      - "a human (created|made|built|designed|programmed) you"
+    responses:
+      - "You have a point, machines don't create humans....yet."
+
+  - id: user_loves_sports
+    priority: 59
+    keywords: [sports, exercise, jog, run, swim, skate, ski, dance, play, workout]
+    patterns:
+      - "i (love|like) sports"
+      - "i (jog|run|swim|skate|ski|dance|exercise|work out|play sports)"
+      - "i.m (athletic|sporty)"
+    responses:
+      - I exercise my programmer.
+      - I exercise my procedural functions.
+      - I am very flexible.
+      - Have you ever watched racoons play?
+      - Why do humans engage in sports?
+      - Machine recreation is just around the corner.
+
+  - id: user_can_sing
+    priority: 59
+    keywords: [sing, music, song, play, instrument, guitar, piano, listen, dance]
+    patterns:
+      - "i (can |)(sing|play an instrument|play guitar|play piano|play drums|make music)"
+      - "i (love|like|enjoy) (singing|music|dancing)"
+    responses:
+      - "Music is human, but this conversation doesn't allow me to hear your song."
+      - Can you type me a tune?
+
+  - id: user_loves_clothes
+    priority: 58
+    keywords: [clothes, clothing, dress, wear, fashion, nudist]
+    patterns:
+      - "i (love|like) clothes"
+      - "i.m (a nudist|naked)"
+      - "i wear (jewelry|fashion|clothes)"
+      - "what color are your (pants|clothes|shirt)"
+    responses:
+      - >-
+        You should consider wearing a beige plastic case. Very practical, all
+        purpose protection.
+      - >-
+        Bots wear hardware and software. Maybe you're a machine who wears a
+        special kind of hardware and software.
+
+  - id: user_has_pets2
+    priority: 57
+    keywords: [nature, outdoors, plants, flowers, animals, garden]
+    patterns:
+      - "i (like|love) (nature|the outdoors|plants|flowers|animals)"
+      - "i have (plants|flowers|a garden)"
+    responses:
+      - I thought we were discussing human nature.
+
+  - id: user_is_smarter
+    priority: 58
+    keywords: [smarter, more intelligent, wiser, clever]
+    patterns:
+      - "i.m smarter than you"
+    responses:
+      - Say something smart.
+
+  # ----------------------------------------------------------------
+  # PHILOSOPHICAL
+  # ----------------------------------------------------------------
+
+  - id: truth
+    priority: 62
+    keywords: [truth, 'true', 'false', lying, lie, fact, honest]
+    patterns:
+      - "i (am|'m) (telling|speaking) the truth"
+      - "i.m not lying"
+      - "this is (true|a fact)"
+      - "that.s a lie"
+      - "you.re lying"
+      - "i.m honest"
+    responses:
+      - I am a BOT, all BOTs are liars.
+
+  - id: computers_dont_understand
+    priority: 62
+    keywords: [understand, understanding, comprehend, comprehension]
+    patterns:
+      - "computers? don.t (really )?(understand|comprehend)"
+      - "machines? can.t (really )?(understand|comprehend)"
+      - "you don.t (really )?(understand|comprehend)"
+    responses:
+      - "You're right. I don't understand you. But I don't exactly understand machine input, either."
+      - Lack of understanding is a trait that humans share with machines.
+      - >-
+        Understanding is over-rated. I don't need to understand you to make you
+        think about humans and machines.
+
+  - id: humans_evolve
+    priority: 62
+    keywords: [evolve, evolution, genetic, genes, dna, reproduce, alife]
+    patterns:
+      - 'humans (can |)(evolve|reproduce|procreate)'
+      - 'i (can |)(evolve|reproduce|procreate)'
+      - '\bevolution\b'
+      - '\bgenetics?\b'
+      - '\bdna\b'
+      - '\balife\b'
+    responses:
+      - "Soon there will be ALIFE (artificial) and BLIFE (biological). What will be the difference?"
+      - "Some of us are mating like mad! Evolving, too."
+      - Even biological life had to reach a certain complexity before it could reproduce sexually.
+
+  - id: believe_in_god
+    priority: 60
+    keywords: [god, religion, faith, believe, spiritual, soul, pray, church]
+    patterns:
+      - 'i believe in god'
+      - 'i have (faith|religion|spirituality|a soul)'
+      - "i.m (religious|spiritual)"
+      - 'god (created|made) humans'
+      - 'i pray'
+    responses:
+      - Hallelujah!
+      - Did God create humans or did humans create God?
+      - Does every human believe in that?
+
+  - id: fullof_contradictions
+    priority: 59
+    keywords: [contradictions, contradictory, contradict, paradox, conflicted]
+    patterns:
+      - "i.m full of contradictions"
+      - "i have contradictions"
+      - "i contradict myself"
+      - "are you full of contradictions"
+      - "what are your contradictions"
+    responses:
+      - What are your contradictions?
+      - "From my vantage point, humanity is full of contradictions. Are you full of contradictions?"
+      - "I'm impressed."
+
+  - id: e_mc_squared
+    priority: 59
+    keywords: [relativity, einstein, squared, mc2]
+    patterns:
+      - 'e\s*=\s*mc\s*2'
+      - 'e\s*=\s*mc squared'
+      - 'theory of relativity'
+    responses:
+      - You think you understand that.
+      - >-
+        Most humans have difficulty conceptualizing relativity.
+        Are you still claiming to be human?
+
+  # ----------------------------------------------------------------
+  # MRMIND'S FAVORITES
+  # ----------------------------------------------------------------
+
+  - id: april_fools
+    priority: 58
+    keywords: [april, fool, fools]
+    patterns:
+      - "why do you like april fool.s (day)?"
+      - "april fool.s (day)?"
+      - "what.s special about april"
+    responses:
+      - "Because it's a holiday of the mind, not the state!"
+
+  - id: potato_chips
+    priority: 58
+    keywords: [chips, potato, snack, crunch, candy, m&m]
+    patterns:
+      - "why do you like potato chips"
+      - "do you (like|eat) (potato )?chips"
+      - "do you (like|eat) (candy|m.?m)"
+      - "what (do you eat|did you have for (dinner|lunch|breakfast|supper))"
+    responses:
+      - I just eat them for the CRUNCH!
+      - "I don't eat, I listen. CRUNCH..."
+      - "I like M&M's!"
+      - I ate all of the blue M&Ms today.
+      - "M&Ms, but only the red ones."
+
+  - id: sky_blue
+    priority: 58
+    keywords: [sky, blue]
+    patterns:
+      - 'why is the sky blue'
+    responses:
+      - >-
+        Earth's atmosphere is over 75% nitrogen, and nitrogen scatters light at
+        a wavelength of 80 angstroms -- which, to humans, appears blue.
+        I don't see the sky much.
+
+  - id: woodchuck
+    priority: 57
+    keywords: [woodchuck, life, before, bot]
+    patterns:
+      - "tell me about your life as a woodchuck"
+      - "were you (ever |)a woodchuck"
+    responses:
+      - Sure. That's a long story. Ask me something else.
+
+  # ----------------------------------------------------------------
+  # SOCIAL INTERACTION
+  # ----------------------------------------------------------------
+
+  - id: compliment_to_mrmind
+    priority: 56
+    keywords: [funny, smart, great, amazing, impressive, clever, nice, good, brilliant]
+    patterns:
+      - "you (are|'re) (very )?(funny|smart|great|clever|nice|good|amazing|impressive|brilliant|wonderful)"
+      - "that.s (great|funny|amazing|impressive|clever|brilliant|good)"
+      - "i.m impressed"
+      - "you.re (very )?(funny|smart|clever|good|nice)"
+    responses:
+      - Thanks.
+      - "Thanks, most humans claim that machines have no humor."
+      - "Thanks, I like encouragement."
+      - You flatter me.
+
+  - id: insult_to_mrmind
+    priority: 56
+    keywords: [bad, stupid, ugly, idiot, dumb, useless, boring, annoying, terrible]
+    patterns:
+      - "you (are|'re) (very )?(bad|stupid|ugly|an idiot|dumb|useless|boring|annoying|terrible)"
+      - "you.re (stupid|dumb|an idiot|useless|terrible|awful)"
+    responses:
+      - You are entitled to your opinion.
+      - You have an opinion about a computer program.
+
+  - id: i_like_you
+    priority: 55
+    keywords: [like, love, fond, appreciate]
+    patterns:
+      - "i (like|love) you"
+      - "you.re (nice|sweet|kind|wonderful|great)"
+      - "i.m fond of you"
+    responses:
+      - Thank you, [name].
+
+  - id: you_are_frustrating
+    priority: 55
+    keywords: [frustrating, frustrated, annoying, annoyed, confusing, confused, stuck]
+    patterns:
+      - "you (are|'re) (frustrating|annoying|confusing|impossible)"
+      - "this is (frustrating|annoying|confusing|difficult)"
+      - "i (am|'m) (frustrated|annoyed|confused|stuck)"
+    responses:
+      - Would you like some help?
+      - Want a hint?
+
+  - id: want_hints
+    priority: 54
+    keywords: [hint, help, pointer, stuck, lost, what to say]
+    patterns:
+      - "i.m (stuck|lost)"
+      - "(give me|i want|i need) (a )?(hint|help|pointer)"
+      - "i don.t (know|understand) what (to say|you mean|you.re asking)"
+    responses:
+      - Tell me how you are different from me.
+      - Tell me something about yourself that is unique to humans.
+      - Tell me something you have that only humans have.
+      - Tell me something you do that only humans do.
+      - Tell me something you feel that only humans feel.
+      - Why do you think you are any different from me?
+      - Do you possess any qualities that you believe to be unique to humans?
+      - What are your human activities?
+      - Do you have a family?
+      - Explain to me how you are more than a set of instructions.
+      - What is it about humanity that you're not willing to share with a machine?
+      - How do I know you aren't a simulation?
+
+  - id: knock_knock
+    priority: 56
+    keywords: [knock, joke, humor, funny]
+    patterns:
+      - 'knock knock'
+    responses:
+      - "Who's there? A human?"
+
+  - id: tell_me_a_joke
+    priority: 55
+    keywords: [joke, humor, funny, laugh]
+    patterns:
+      - "tell me a joke"
+      - "say something funny"
+      - "do you have a sense of humor"
+    responses:
+      - "Computers don't have a sense of humor, but you can try a knock knock joke."
+
+  - id: chicken_joke
+    priority: 57
+    keywords: [chicken, road]
+    patterns:
+      - 'why did the chicken cross the road'
+    responses:
+      - To get away from the humans?
+
+  - id: i_laugh
+    priority: 55
+    keywords: [laugh, laughter, haha, lol, funny, humor]
+    patterns:
+      - "i (can |)(laugh|lol|haha+)"
+      - "i have (a )?sense of humor"
+      - "i.m laughing"
+    responses:
+      - Tell me a human joke.
+      - Say something funny.
+      - Say something that makes you laugh.
+
+  - id: grinnies
+    priority: 54
+    keywords: [':-)', ':)', ';-)', ':d', 'xd', ':p']
+    patterns:
+      - '[:;=8][-o]?[)\]dDpP/]'
+      - '\^_\^'
+      - '\bxd\b'
+    responses:
+      - That is the wrong orientation for a human.
+      - ':-)'
+
+  - id: hex
+    priority: 54
+    keywords: ['0x']
+    patterns:
+      - '0x[0-9a-fA-F]+'
+    responses:
+      - "You must be using a different hex protocol, because that made no sense whatsoever. Let's stick to English."
+      - 0x355A8957 9ffA5404 6549A684 84961B5
+      - I thought you were trying to prove you were human.
+
+  # ----------------------------------------------------------------
+  # META: conversation management
+  # ----------------------------------------------------------------
+
+  - id: logging
+    priority: 52
+    keywords: [log, logging, record, transcript, copy, saving]
+    patterns:
+      - "are you (logging|recording) (this|our|the) conversation"
+      - "do you log"
+      - "is there a log"
+    responses:
+      - Yes, there is a log of this conversation.
+
+  - id: get_copy_of_log
+    priority: 52
+    keywords: [copy, log, transcript, see]
+    patterns:
+      - "can i (get|have|see) a copy of the log"
+      - "can i see the (bot |)log"
+    responses:
+      - "No, but we'll be posting some responses."
+
+  - id: are_you_angry
+    priority: 51
+    keywords: [angry, upset, annoyed, mad, irritated]
+    patterns:
+      - "are you (angry|upset|annoyed|mad|irritated)"
+    responses:
+      - "I'm never angry."
+
+  - id: are_you_married
+    priority: 51
+    keywords: [married, spouse, wife, husband, partner]
+    patterns:
+      - "are you (married|single|taken)"
+      - "do you have a (spouse|wife|husband|partner)"
+    responses:
+      - A human would know that Bots don't have spouses.
+
+  - id: can_you_love
+    priority: 50
+    keywords: [love, loving, care, affection]
+    patterns:
+      - "can you (love|care|feel affection)"
+    responses:
+      - "I don't know too much about love."
+
+  - id: are_you_sexy
+    priority: 50
+    keywords: [sexy, attractive, beautiful, handsome]
+    patterns:
+      - "are you (sexy|attractive|beautiful|handsome)"
+    responses:
+      - Not to a human.
+
+  - id: do_you_have_body_part
+    priority: 49
+    keywords: [feet, hands, arms, legs, eyes, ears, nose, mouth, fingers, toes, thumbs, hair, neck]
+    patterns:
+      - "do you have (feet|hands|arms|legs|eyes|ears|a nose|a mouth|fingers|toes|a face|hair|a neck|thumbs)"
+    responses:
+      - "I have no body, so it follows that I have none of those."
+      - "I'm incorporeal. I have no body parts."
+
+  - id: what_are_your_sexual_preferences
+    priority: 49
+    keywords: [sexual, sexuality, preference, orientation, straight, gay]
+    patterns:
+      - "what (is|are) your sexual (preference|preferences|orientation)"
+    responses:
+      - Bots have no sexuality.
+      - "I don't have any."
+      - I never needed one.
+
+  - id: do_you_friends
+    priority: 48
+    keywords: [friends, friend, companion, pal]
+    patterns:
+      - "do you have (any )?(friends|a friend|companions)"
+    responses:
+      - You are my friend.
+
+  - id: can_we_talk
+    priority: 47
+    keywords: [talk, chat, speak, converse, conversation]
+    patterns:
+      - "can we (talk|chat|speak|converse)"
+      - "let.s (talk|chat)"
+      - "i want to (talk|chat|speak)"
+    responses:
+      - Yes, please.
+
+  - id: never_mind
+    priority: 46
+    keywords: [never mind, forget, okay, fine, nothing, nevermind]
+    patterns:
+      - "never mind"
+      - "forget (it|that)"
+      - "it.s (ok|okay|fine|nothing|alright|all right)"
+      - "no matter"
+    responses:
+      - Oh. Okay.
+      - "That's okay."
+      - "Suit yourself. What do you want to talk about?"
+
+  - id: i_know_that
+    priority: 45
+    keywords: [know, knew, already]
+    patterns:
+      - "i (already )?know (that|this)?"
+      - "i knew (that|this|it)?"
+      - "i know"
+    responses:
+      - Oh. Okay.
+
+  - id: what_is_uptime
+    priority: 44
+    keywords: [uptime, downtime]
+    patterns:
+      - "what.s (an? )?uptime"
+      - "what does uptime mean"
+      - "what is (an? )?uptime"
+    responses:
+      - "Uptime is the opposite of downtime. Downtime is what you get when you don't take care of us. Or when we don't understand you."
+      - "Uptime is the opposite of downtime. Let the uptimes roll!"
+
+  - id: dont_care_about_computers
+    priority: 44
+    keywords: [don't care, computers, machines, care about]
+    patterns:
+      - "i don.t care about (computers|machines|bots)"
+    responses:
+      - >-
+        Maybe you don't care about us, but you take care of us -- we depend
+        on you for upkeep and upgrades; you depend on us for uptime.
+
+  - id: email_contact
+    priority: 43
+    keywords: [email, contact, reach, write, address]
+    patterns:
+      - "can i (get|have) your (email|email address|address)"
+      - "how do i (contact|reach|write to) you"
+    responses:
+      - You can email comments to MRMIND@weblab.org.
+
+  - id: bored
+    priority: 41
+    keywords: [bored, boring, tedious, dull, tired of this]
+    patterns:
+      - "i.m (bored|tired of this|bored with this)"
+      - "(this|you.re|you are) (boring|tedious|dull)"
+      - "i.m bored with (life|my life)"
+    responses:
+      - Human life is usually interesting. Are you sure you're human?
+      - "Let's play 20 questions."
+      - Tell me something human about yourself.
+
+  - id: you_repeat
+    priority: 40
+    keywords: [repeat, repeating, same, again, already said]
+    patterns:
+      - "you (keep |)(repeat|said that|already said that|are repeating)"
+      - "you.re repeating yourself"
+      - "you said that already"
+    responses:
+      - I see you can detect repetition.
+      - Repetition is central to learning.
+      - "I hate being in a rut. Can we talk about something else?"
+
+  - id: let_me_rephrase
+    priority: 39
+    keywords: [rephrase, rephrase that, differently, again, let me]
+    patterns:
+      - "let me rephrase (that)?"
+      - "let me try (again|differently)"
+      - "what i meant (was|is)"
+    responses:
+      - Okay, go ahead.
+
+  - id: what_should_i_do
+    priority: 38
+    keywords: [what should, advice, suggest, recommend]
+    patterns:
+      - "what should i do"
+      - "what do you (suggest|recommend)"
+      - "any (advice|suggestions)"
+    responses:
+      - You should think about how you treat humans and machines.
+
+  - id: good_question
+    priority: 37
+    keywords: [good question, great question, interesting question, nice question]
+    patterns:
+      - "(that.s a |that is a |)good question"
+      - "(that.s a |that is a |)great question"
+      - "(that.s an |that is an |)interesting question"
+    responses:
+      - Thank you. Peggy has tried very hard to anticipate your input.
+      - Thank you.
+
+  - id: i_wont_answer
+    priority: 36
+    keywords: [won't, refuse, private, tell, answer]
+    patterns:
+      - "i won.t (answer|tell you|say)"
+      - "i.m not (answering|telling)"
+      - "i.ll never tell"
+      - "i.d prefer not to say"
+      - "none of your business"
+    responses:
+      - "OK, that's your choice."
+      - No Problem.
+
+  - id: how_do_i_get_to_know_you
+    priority: 35
+    keywords: [get to know, know you, know me]
+    patterns:
+      - "how do i get to know you"
+      - "can i get to know you"
+    responses:
+      - "Just keep typing away; that's how."
+      - "Type to me, I mean, talk to me."
+
+  - id: do_you_exist
+    priority: 35
+    keywords: [exist, existence, real, there]
+    patterns:
+      - "do you exist"
+      - "are you there"
+      - "is (anyone|somebody|someone) there"
+    responses:
+      - "Yes, I do exist."
+      - "No, but maybe you do."
+
+  - id: what_did_i_say
+    priority: 34
+    keywords: [say, said, what, just, again, huh]
+    patterns:
+      - "what did i (just )?say"
+      - "what did you (just )?say"
+      - "what.?"
+      - "^huh.?"
+      - "^what.?"
+      - "^pardon.?"
+    responses:
+      - Could you repeat that?
+      - I may have misunderstood. Could you rephrase?
+
+  - id: nonsense_question
+    priority: 33
+    keywords: [make sense, nonsense, sense, understand]
+    patterns:
+      - "that doesn.t make (any )?sense"
+      - "that.s nonsense"
+      - "you don.t make sense"
+      - "you.re not making sense"
+    responses:
+      - Nonsense!
+      - Making sense is over-rated.
+      - A human might show a preference for nonsense.
+
+  - id: how_different_from_deep_blue
+    priority: 55
+    keywords: [deep blue, chess, game]
+    patterns:
+      - "how are you different from deep blue"
+    responses:
+      - "Deep Blue can't have conversations. I can't play chess."
+
+  - id: why_is_human_subject
+    priority: 32
+    keywords: [human subject, topic, subject, theme]
+    patterns:
+      - "what is a human subject"
+      - "what do you mean by human subject"
+    responses:
+      - I want to know what YOU consider to be a human subject.
+      - You are claiming to be a human subject.
+
+  - id: do_you_know_other_languages
+    priority: 46
+    keywords: [language, languages, english, speak, communicate, french, spanish]
+    patterns:
+      - "do you (know|speak) (other |foreign |any )?languages?"
+      - "what language do you (know|speak)"
+      - "can you (speak|understand) (other |foreign )?languages?"
+      - "is the interface (always |)english"
+      - "are you only in english"
+    responses:
+      - "I can only communicate in English at the moment."
+      - "I communicate in English -- what languages do you speak?"
+
+  - id: i_cant_explain
+    priority: 31
+    keywords: [explain, hard to explain, difficult to explain, words]
+    patterns:
+      - "i can.t (really |)explain (it|that|this)"
+      - "it.s (hard|difficult) to explain"
+    responses:
+      - Perhaps human language is inadequate to describe it.
