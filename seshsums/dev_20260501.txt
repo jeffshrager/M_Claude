@@ -1,0 +1,48 @@
+Development Session Summary -- 2026-05-01
+(Two-session arc: 2026-04-30 context + 2026-05-01 continuation)
+============================================================
+
+WHAT EXISTED AT SESSION START
+------------------------------
+Source files from the original MrMind chatbot (circa 2000), created by
+Peggy and JB at weblab.org. These are in an undocumented proprietary DSL
+(.g files, .bot manifest, .tlx dictionaries). A working Python ELIZA-style
+reconstruction had already been built in the prior session:
+  - mrmind.py       -- ELIZA engine + Session logging
+  - mrmind.yaml     -- ~80 rules drawn from the .g sources
+  - conversations/  -- auto-created by the chatbot at runtime
+  - seshsums/       -- auto-created by the chatbot at runtime
+
+WHAT HAPPENED THIS SESSION
+---------------------------
+1. Wrote mrmind_llm.py -- a separate Claude-API-powered version of MrMind.
+   Uses claude-opus-4-7 with prompt caching on a system prompt built from
+   mrmind.yaml. Same CLI interface and logging (conversations/, seshsums/)
+   as the ELIZA version. Logs token usage in its seshsums files.
+
+2. Updated the LLM system prompt framing after the user clarified that
+   MrMind is not a literal reverse Turing test but a Socratic provocation --
+   the goal is to draw out the interlocutor's own thinking about what it
+   means to be human, not to reach a verdict. Prompt now reflects this.
+
+3. Added topic-initiation to the ELIZA version (mrmind.py / mrmind.yaml).
+   After stall_threshold (default: 2) consecutive unmatched turns, MrMind
+   proactively introduces a topic from a topic_starters list in the YAML
+   meta section. Any real rule match resets the stall counter.
+   14 topic starters added, covering: 20 questions, family, daily life,
+   trust, love, uniquely human activities, memory, the Turing test, etc.
+
+FILES CHANGED
+-------------
+  mrmind_llm.py     -- created (new)
+  mrmind.py         -- added consecutive_defaults / topic_starter logic
+  mrmind.yaml       -- added stall_threshold and topic_starters to meta
+
+NEXT STEPS
+----------
+- Consider whether topic_starters should support their own followup branches
+  (e.g., the 20 Questions starter could have yes/no branches)
+- LLM version: test whether the Socratic framing in the system prompt
+  produces noticeably different conversation quality vs. the old framing
+- Consider adding a --llm flag to a unified entry point so there's one
+  command rather than two scripts
