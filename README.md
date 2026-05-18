@@ -22,15 +22,34 @@ python3 mrmind.py [-v | --verbose]
 
 Pass `-v` to enable verbose mode (see [Verbose mode](#verbose-mode) below).
 
-### `mrmind_llm.py` — Claude-powered engine
+### `mrmind_llm.py` — Claude-powered engine (script-guided)
 
-Uses the Anthropic API (claude-opus-4-7) to role-play MrMind. Same rules file
-feeds a system prompt; Claude improvises within the character. Requires an
-`ANTHROPIC_API_KEY` environment variable.
+Uses the Anthropic API (claude-opus-4-7) to role-play MrMind. The same
+`mrmind.yaml` rules file is fed into the system prompt as verbatim responses
+for Claude to draw from. Requires an `ANTHROPIC_API_KEY` environment variable.
 
 ```
 python3 mrmind_llm.py
 ```
+
+### `mrmind2.py` — Claude-native engine (self-contained)
+
+A modern reconstruction with no script at all. The character, Socratic mission,
+and full thematic territory are baked into a rich system prompt inside the file;
+Claude reasons freely about what to probe next based on the actual conversation.
+
+**This file is fully self-contained** — no yaml or other files needed. You can
+hand it to another user and it will work with just:
+
+```
+pip install anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+python3 mrmind2.py [-v | --verbose]
+```
+
+Verbose mode prints token and cache usage after each response (useful for
+monitoring API cost). Logs are written to `conversations/` and `seshsums/`
+next to wherever the script lives.
 
 ---
 

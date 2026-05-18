@@ -1,0 +1,19 @@
+Session Summary (MrMind 2) -- 2026-05-18 13:08:56
+============================================================
+
+Duration:          400 seconds
+Exchanges:         9
+User name:         (not captured)
+Input tokens:      8129
+Output tokens:     339
+Cache read tokens: 4168
+Cache write tokens:4410
+Transcript:        conversations/mm2_20260518_130856.txt
+
+First exchange:
+  You:    How could I convince you?
+  MrMind: Convince me of what, exactly? That you're human? That should worry you -- the fact that it needs convincing at all.
+
+Last exchange:
+  You:    quit
+  MrMind: Goodbye. I still haven't determined whether you are human.
