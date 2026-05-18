@@ -243,10 +243,13 @@ class Session:
         self._conv_file.write(f'MrMind: {text}\n\n')
         self._conv_file.flush()
 
-    def log_exchange(self, user_input: str, bot_response: str):
+    def log_exchange(self, user_input: str, bot_response: str, note: str = ''):
         self._exchanges.append((user_input, bot_response))
         self._conv_file.write(f'You:    {user_input}\n')
-        self._conv_file.write(f'MrMind: {bot_response}\n\n')
+        self._conv_file.write(f'MrMind: {bot_response}\n')
+        if note:
+            self._conv_file.write(f'  {note}\n')
+        self._conv_file.write('\n')
         self._conv_file.flush()
 
     def close(self, bot: MrMind):
@@ -330,6 +333,7 @@ def main():
 
         response = bot.respond(user_input)
         print(f'MrMind: {response}')
+        note = ''
         if args.verbose:
             rule_str = bot.last_rule_fired
             if bot.last_focus_boosted:
@@ -342,9 +346,10 @@ def main():
             defaults_str = ''
             if bot.consecutive_defaults:
                 defaults_str = f' | stall: {bot.consecutive_defaults}/{bot.stall_threshold}'
-            print(f'  [rule: {rule_str} | focus: {focus_str}{followup_str}{defaults_str}]')
+            note = f'[rule: {rule_str} | focus: {focus_str}{followup_str}{defaults_str}]'
+            print(f'  {note}')
         print()
-        session.log_exchange(user_input, response)
+        session.log_exchange(user_input, response, note=note)
 
         if bot.BYE_PAT.search(user_input.lower()):
             break
