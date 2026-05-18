@@ -1,0 +1,21 @@
+Session Summary -- 2026-05-18 12:37:03
+============================================================
+
+Duration:       81 seconds
+Exchanges:      7
+User name:      (not captured)
+Transcript:     conversations/20260518_123703.txt
+
+Rules fired (4 unique):
+  __default__
+  user_has_emotions
+  can_we_talk
+  are_you_human
+
+First exchange:
+  You:    of course I'm human
+  MrMind: Tell me something human about yourself.
+
+Last exchange:
+  You:    quit
+  MrMind: Goodbye. I still haven't determined whether you are human.

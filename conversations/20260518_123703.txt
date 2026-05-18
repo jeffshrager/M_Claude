@@ -1,28 +1,28 @@
-MrMind session  2026-05-18T11:45:48.893043
+MrMind session  2026-05-18T12:37:03.615088
 ============================================================
 
 MrMind: Hello. I am MrMind. I am trying to determine whether you are human. Are you human?
 
-You:    yes
+You:    of course I'm human
 MrMind: Tell me something human about yourself.
 
-You:    i love my children
+You:    I love my mother
 MrMind: That is an emotional state. If I could recognize and respond to your emotional state would you feel differently about me?
 
 You:    maybe
 MrMind: Interesting. Are you human?
 
-You:    you keep asking me that
-MrMind: Let's play 20 questions. Think of something — is it alive?
+You:    let's talk about you
+MrMind: Yes, please.
 
-You:    okay
+You:    Are you human?
+MrMind: Say it loud -- I'm not human and proud!
+
+You:    Would you like to be human?
 MrMind: What makes you say that?
-
-You:    I'm thinking of something
-MrMind: Tell me about your family. Are they human?
 
 You:    quit
 MrMind: Goodbye. I still haven't determined whether you are human.
 
 
-[Session ended 2026-05-18T12:26:57.229775  duration 2468s]
+[Session ended 2026-05-18T12:38:24.744717  duration 81s]

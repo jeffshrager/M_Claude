@@ -4,7 +4,9 @@
       "Read(//Users/jeffshrager/.claude/projects/**)",
       "Read(//Users/jeffshrager/.claude/**)",
       "Bash(xargs ls -la)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(pip show *)"
     ]
   }
 }
