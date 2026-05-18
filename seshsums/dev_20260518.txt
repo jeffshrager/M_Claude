@@ -1,0 +1,79 @@
+Development Session Summary -- 2026-05-18
+============================================================
+
+WHAT EXISTED AT SESSION START
+------------------------------
+Two nested git repos:
+  - Outer: /mrmind/  (nearly empty, just contained MrMind_C/)
+  - Inner: /mrmind/MrMind_C/  (all actual code)
+
+Working code from prior sessions:
+  - mrmind.py       -- ELIZA engine + Session logging
+  - mrmind_llm.py   -- Claude API-powered version (claude-opus-4-7)
+  - mrmind.yaml     -- ~80 rules drawn from the .g sources
+  - conversations/  -- runtime chat transcripts
+  - seshsums/       -- runtime session summaries
+
+WHAT HAPPENED THIS SESSION
+---------------------------
+1. Fixed nested git repo situation.
+   Ditched outer .git, moved MrMind_C/ contents up to repo root.
+   Merged .claude/settings.local.json from both locations (inner had
+   Python run permissions; outer had memory-read permissions).
+
+2. Created README.md at repo root covering:
+   - What MrMind is and the two versions
+   - Dependencies and how to run
+   - Logging directories (conversations/, seshsums/)
+   - mrmind.yaml rule format
+   - How to make changes (add rules, followups, tune stall behaviour)
+   - Original source files
+
+3. Read all original .g source files to inventory capabilities missing
+   from the current reconstruction (see MISSING CAPABILITIES below).
+
+FILES CHANGED
+-------------
+  README.md         -- created (new)
+  seshsums/         -- moved to repo root (was inside MrMind_C/)
+  .claude/settings.local.json -- merged permissions from both repos
+
+MISSING CAPABILITIES (from original .g files, not yet in mrmind.py)
+--------------------------------------------------------------------
+These existed in the original weblab Gerbil-based system and were not
+carried into the current ELIZA reconstruction:
+
+a) 20 Questions game (MrMind/20Questions.g)
+   A full structured multi-turn game: user thinks of a human attribute,
+   MrMind asks yes/no questions probing it (does it involve family?
+   is it constant? universal? necessary? unique to humans?).
+   A real dialogue arc, not just pattern matching.
+
+b) Human Quotient score (JB-added/HumanQuotient.g, ScoreMe.g,
+   WinLoss.g, LexicalMath.g)
+   A running numerical score tracking how "human" the user seems.
+   LexicalMath.g implemented lexical increment/decrement up to 1000.
+   Bot could comment on and update the score during conversation.
+
+c) Repetition detection (JB-added/Repetition.g)
+   Bot detected when user was repeating themselves and called it out.
+
+d) Expression tracking (JB-added/ExpressionFilter.g,
+   Defaults/defaults.g "Expressions repeater")
+   Bot noted phrases/expressions the user used and could echo them
+   back later in the conversation.
+
+e) Probabilistic response selection (WantSomePointers.g "IfChance")
+   Weighted-random selection from a pool of hints/suggestions, rather
+   than strict cycling. Used when user was stuck.
+
+f) User survey (MrMind/UserSurvey.g)
+   Formal survey the bot could administer when user was stuck or
+   explicitly asked for pointers. Referred to from multiple topics.
+
+NEXT STEPS
+----------
+- Decide which missing capability to implement next (20 Questions game
+  and Human Quotient score are the strongest candidates).
+- Consider whether these belong in mrmind.py (ELIZA engine) or only
+  in mrmind_llm.py, or both.

@@ -3,9 +3,7 @@
     "allow": [
       "Read(//Users/jeffshrager/.claude/projects/**)",
       "Read(//Users/jeffshrager/.claude/**)",
-      "Bash(python3 mrmind.py)",
-      "Bash(python3 *)",
-      "Skill(claude-api)"
+      "Bash(xargs ls -la)"
     ]
   }
 }
