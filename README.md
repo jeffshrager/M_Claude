@@ -74,6 +74,87 @@ after N consecutive unmatched turns).
 
 ---
 
+## Making changes
+
+All behavior changes go in `mrmind.yaml`. You rarely need to touch the Python.
+
+### Edit an existing response
+
+Find the rule by its `id`, then add, remove, or reorder lines in `responses`.
+Responses cycle in order on repeated matches, so put the strongest line first.
+
+### Add a new rule
+
+Append a block under `rules:` (order within the file doesn't matter — `priority`
+controls firing order):
+
+```yaml
+  - id: my_new_rule
+    priority: 60          # 50 is default; higher fires before lower
+    keywords: [memory, remember, forget]
+    patterns:
+      - '\b(remember|forget|memory|memories)\b'
+    responses:
+      - Do machines remember, or do they merely store?
+      - Is a memory still yours if you can't recall it?
+```
+
+`keywords` is a fast pre-filter — at least one must appear in the input before
+patterns are tried. If you omit `patterns`, a keyword match alone fires the rule.
+
+### Add a yes/no follow-up branch
+
+```yaml
+    responses:
+      - Have you ever been in love?
+    followup:
+      prompt: Would you say love is uniquely human?
+      yes: So love is your proof of humanity. Interesting.
+      no: Then what is?
+      maybe: A philosopher's answer. I respect that.
+```
+
+After the first response fires, MrMind treats the user's next turn as a
+yes/no/maybe and replies from the matching branch.
+
+### Tune the stall behaviour
+
+In the `meta` section:
+
+```yaml
+meta:
+  stall_threshold: 2      # proactively introduce a topic after N consecutive unmatched turns
+  topic_starters:
+    - "Let's play 20 questions. Think of something — is it alive?"
+    - What's the most human thing you did today?
+```
+
+Add new topic starters to the list; they cycle in order.
+
+### Change greeting, farewell, or defaults
+
+Also in `meta`:
+
+```yaml
+meta:
+  greeting: Hello. I am MrMind. Are you human?
+  farewell: Goodbye. I still haven't determined whether you are human.
+  defaults:
+    - Tell me something human about yourself.
+    - What makes you say that?
+```
+
+`defaults` cycle when no rule matches and the stall threshold hasn't been hit.
+
+### Testing a change
+
+Run `python3 mrmind.py` (no API key needed) and exercise the new rule. The
+ELIZA version is fast for iteration. Once the rule feels right, the LLM version
+will pick it up automatically — it reads the same `mrmind.yaml` to build its
+system prompt.
+
+---
+
 ## Source files
 
 The `A_Q/`, `Q_A/`, `Defaults/`, `JB-added/`, `utilities/`, and `*.g`/`*.tlx`
