@@ -1,0 +1,20 @@
+Session Summary -- 2026-05-18 11:43:38
+============================================================
+
+Duration:       0 seconds
+Exchanges:      6
+User name:      (not captured)
+Transcript:     conversations/20260518_114338.txt
+
+Rules fired (3 unique):
+  user_has_mother
+  user_bleeds
+  __default__
+
+First exchange:
+  You:    I have a mother
+  MrMind: Fine, is she human?  Is your mother human?
+
+Last exchange:
+  You:    bye
+  MrMind: Goodbye. I still haven't determined whether you are human.

@@ -5,6 +5,7 @@ Original MrMind was created by Peggy and JB at weblab.org.
 This is an ELIZA-style reconstruction based on the original .g source files.
 """
 
+import argparse
 import re
 import yaml
 import sys
@@ -71,6 +72,8 @@ class MrMind:
         self.response_idx = {}
         self.followup = None
         self.focus = None           # current focused subject (str) or None
+        self.last_rule_fired = None  # id of rule that handled the last turn
+        self.last_focus_boosted = False  # True if focus caused the rule to win
         self.rules_fired = []   # ordered list of rule ids matched this session
         self.consecutive_defaults = 0
         self.topic_starter_idx = 0
@@ -92,6 +95,8 @@ class MrMind:
         self._try_capture_name(lower)
 
         if self.BYE_PAT.search(lower):
+            self.last_rule_fired = '__farewell__'
+            self.last_focus_boosted = False
             return self.farewell()
 
         if self.followup:
@@ -99,11 +104,14 @@ class MrMind:
             self.followup = None
             response = self._handle_followup(lower, followup)
             if response:
+                self.last_rule_fired = '__followup__'
+                self.last_focus_boosted = False
                 return self._personalize(response)
 
         rule = self._find_match(lower)
         if rule:
             self.rules_fired.append(rule['id'])
+            self.last_rule_fired = rule['id']
             self.consecutive_defaults = 0
             response = self._next_response(rule)
             if 'followup' in rule:
@@ -125,6 +133,7 @@ class MrMind:
             self.consecutive_defaults = 0
             starter = self.topic_starters[self.topic_starter_idx % len(self.topic_starters)]
             self.topic_starter_idx += 1
+            self.last_rule_fired = '__topic_starter__'
             return self._personalize(starter)
 
         defaults = self.meta.get('defaults', [
@@ -140,6 +149,7 @@ class MrMind:
         idx = self.response_idx.get('__default__', 0)
         response = defaults[idx % len(defaults)]
         self.response_idx['__default__'] = idx + 1
+        self.last_rule_fired = '__default__'
         return self._personalize(response)
 
     # ------------------------------------------------------------------
@@ -149,8 +159,10 @@ class MrMind:
         if self.focus:
             for rule in self.rules:
                 if self.focus in rule.get('subjects', []) and self._matches(rule, lower):
+                    self.last_focus_boosted = True
                     return rule
         # Second pass: all rules in normal priority order.
+        self.last_focus_boosted = False
         for rule in self.rules:
             if self._matches(rule, lower):
                 return rule
@@ -278,6 +290,11 @@ class Session:
 # ----------------------------------------------------------------------
 
 def main():
+    parser = argparse.ArgumentParser(description='MrMind chatbot')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Print focus and rule id after each response')
+    args = parser.parse_args()
+
     base_dir = Path(__file__).parent
     rules_file = base_dir / 'mrmind.yaml'
     if not rules_file.exists():
@@ -313,6 +330,19 @@ def main():
 
         response = bot.respond(user_input)
         print(f'MrMind: {response}')
+        if args.verbose:
+            rule_str = bot.last_rule_fired
+            if bot.last_focus_boosted:
+                rule_str += ' (*focus boosted*)'
+            focus_str = bot.focus or 'none'
+            followup_str = ''
+            if bot.followup:
+                prompt = bot.followup.get('prompt', '(no prompt)')
+                followup_str = f' | followup: "{prompt}"'
+            defaults_str = ''
+            if bot.consecutive_defaults:
+                defaults_str = f' | stall: {bot.consecutive_defaults}/{bot.stall_threshold}'
+            print(f'  [rule: {rule_str} | focus: {focus_str}{followup_str}{defaults_str}]')
         print()
         session.log_exchange(user_input, response)
 

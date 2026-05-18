@@ -1,0 +1,20 @@
+Session Summary -- 2026-05-18 11:42:27
+============================================================
+
+Duration:       0 seconds
+Exchanges:      4
+User name:      (not captured)
+Transcript:     conversations/20260518_114227.txt
+
+Rules fired (3 unique):
+  user_has_body
+  user_bleeds
+  never_mind
+
+First exchange:
+  You:    I have a body
+  MrMind: Does it have any artificial parts?
+
+Last exchange:
+  You:    bye
+  MrMind: Goodbye. I still haven't determined whether you are human.
