@@ -84,12 +84,32 @@ g) Focus/Subjects system (pervasive across all .g files) *** KEY MISSING FEATURE
    missing capability. The current followup: field is a crude one-level
    approximation; Focus/Subjects is the real thing.
 
+IMPLEMENTED THIS SESSION
+------------------------
+Focus/Subjects system (mrmind.py + mrmind.yaml):
+
+  mrmind.py changes:
+    - MrMind.__init__: added self.focus = None
+    - respond(): rule loop replaced with _find_match() call; on rule fire,
+      sets self.focus from rule['focus'] or clears it if clear_focus: true
+    - _find_match(): two-pass — focused rules first (subjects include
+      self.focus), then all rules in normal priority order
+
+  mrmind.yaml: 52 rules tagged across 7 subjects:
+    BODY      — body/physical attributes (user_has_body sets focus)
+    MIND      — thinking/cognition (user_can_think sets focus)
+    EMOTIONS  — feelings/emotional life (user_has_emotions sets focus)
+    FAMILY    — family relationships (user_has_mother/father set focus)
+    CONVINCING — proving humanity (user_is_human sets focus)
+    HUMANITY  — what it means to be human
+    MORALS    — ethics/spirituality (user_has_morals sets focus)
+    BOTS      — about MrMind's own nature
+    clear_focus: profanity, never_mind, you_are_frustrating, want_hints
+
+  All tests pass. Backward compatible — untagged rules unaffected.
+
 NEXT STEPS
 ----------
-- Implement Focus/Subjects in mrmind.py:
-    - Add optional subjects: and focus: fields to yaml rules
-    - MrMind tracks self.focus (current focused subject, or None)
-    - respond() does two-pass matching: focused topics first, then all others
-    - Rules with clear_focus: true reset self.focus when they fire
-    - Tag representative rules in mrmind.yaml to demonstrate the mechanism
-- After that: consider 20 Questions game and Human Quotient score.
+- Consider 20 Questions game (multi-turn sequence topic)
+- Consider Human Quotient score
+- Update README with Focus/Subjects editing instructions ✓

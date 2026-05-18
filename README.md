@@ -146,6 +146,57 @@ meta:
 
 `defaults` cycle when no rule matches and the stall threshold hasn't been hit.
 
+### Assign a rule to a subject
+
+Rules with a common theme can be grouped under a `subjects:` tag. When a
+focused rule fires, the engine preferentially tries other rules in the same
+subject before falling back to normal matching. This lets MrMind pursue a line
+of inquiry across several turns.
+
+```yaml
+  - id: user_has_body
+    priority: 69
+    subjects: [BODY]
+    focus: BODY          # sets focus when this rule fires
+    keywords: [body, physical, flesh, skin]
+    ...
+```
+
+Existing subjects and which rules belong to them:
+
+| Subject | What it covers |
+|---------|---------------|
+| `BODY` | Physical attributes — body, brain, bellybutton, bleeding, pain, bodyfunctions, mammal |
+| `MIND` | Thinking/cognition — thinking, cogito, consciousness, imagination, creativity, wonder, learning |
+| `EMOTIONS` | Feelings — emotions, food, sex, fictional love |
+| `FAMILY` | Family relationships — mother, father, family |
+| `CONVINCING` | Proving humanity — convincing, proving, Turing test |
+| `HUMANITY` | What it means to be human — definitions, why it matters |
+| `MORALS` | Ethics/spirituality — morals, truth, God, contradictions |
+| `BOTS` | MrMind's own nature — scripted, can't think/emote, what is a bot |
+
+### Set focus when a rule fires
+
+Add `focus: SUBJECT` to a rule to make the next turn prefer rules in that
+subject. The user can still match any rule — focus just gives subject-mates
+first crack.
+
+```yaml
+    focus: FAMILY   # next turn checks FAMILY rules before others
+```
+
+### Clear focus
+
+Add `clear_focus: true` to reset attention (returns to normal matching). Use
+this on escape hatches like profanity, "never mind", or hint requests.
+
+```yaml
+  - id: never_mind
+    priority: 46
+    clear_focus: true
+    ...
+```
+
 ### Testing a change
 
 Run `python3 mrmind.py` (no API key needed) and exercise the new rule. The

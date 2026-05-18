@@ -57,6 +57,7 @@ rules:
 
   - id: profanity
     priority: 95
+    clear_focus: true
     keywords: [fuck, shit, bitch, asshole, bastard, cunt, damn, hell]
     patterns:
       - 'fuck (you|off|this|it|me)'
@@ -416,6 +417,7 @@ rules:
 
   - id: user_is_a_machine
     priority: 85
+    subjects: [HUMANITY]
     keywords: [machine, robot, computer, bot, program, android]
     patterns:
       - "i (am|'m) a (machine|robot|computer|bot|android|program)"
@@ -444,6 +446,7 @@ rules:
 
   - id: are_you_human
     priority: 87
+    subjects: [HUMANITY]
     keywords: [human, machine]
     patterns:
       - 'are you (a )?human'
@@ -458,6 +461,7 @@ rules:
 
   - id: how_do_i_know_youre_not_human
     priority: 86
+    subjects: [HUMANITY]
     keywords: [know, human, machine, tell, sure]
     patterns:
       - 'how do i know you.re (not human|a machine|a bot)'
@@ -469,6 +473,7 @@ rules:
 
   - id: why_does_it_matter
     priority: 75
+    subjects: [HUMANITY]
     keywords: [matter, care, important, why, point]
     patterns:
       - 'why does it matter (if|whether) i.m human'
@@ -495,6 +500,7 @@ rules:
 
   - id: how_to_convince_you
     priority: 74
+    subjects: [CONVINCING]
     keywords: [convince, prove, show, proof, evidence]
     patterns:
       - 'how (do i|can i|should i) convince you (i.m|i am) (a )?human'
@@ -516,6 +522,8 @@ rules:
 
   - id: i_can_convince_you
     priority: 73
+    subjects: [CONVINCING]
+    focus: CONVINCING
     keywords: [convince, prove]
     patterns:
       - 'i can convince you (i.m|i am) (a )?human'
@@ -526,6 +534,7 @@ rules:
 
   - id: i_cant_convince_you
     priority: 73
+    subjects: [CONVINCING]
     keywords: [convince, prove, can't]
     patterns:
       - "i can.t convince you (i.m|i am) (a )?human"
@@ -537,6 +546,7 @@ rules:
 
   - id: why_should_i_convince_you
     priority: 72
+    subjects: [CONVINCING]
     keywords: [why, convince, important, matter]
     patterns:
       - 'why should i convince you (i.m|i am) (a )?human'
@@ -560,6 +570,7 @@ rules:
 
   - id: turing_test
     priority: 73
+    subjects: [BOTS, CONVINCING]
     keywords: [turing, loebner, test, pass, fail]
     patterns:
       - 'turing test'
@@ -574,6 +585,7 @@ rules:
 
   - id: eliza_comparison
     priority: 72
+    subjects: [BOTS]
     keywords: [eliza, deep blue, julia, other bots]
     patterns:
       - 'how (are you|is this) different from eliza'
@@ -612,6 +624,7 @@ rules:
 
   - id: what_is_humanity
     priority: 65
+    subjects: [HUMANITY]
     keywords: [humanity, human, define, definition, meaning, mean]
     patterns:
       - 'what is (humanity|a human|being human)'
@@ -629,6 +642,7 @@ rules:
 
   - id: user_has_brain
     priority: 70
+    subjects: [BODY, MIND]
     keywords: [brain, mind, skull, head]
     patterns:
       - "i have a (brain|mind)"
@@ -643,6 +657,8 @@ rules:
 
   - id: user_has_body
     priority: 69
+    subjects: [BODY]
+    focus: BODY
     keywords: [body, physical, flesh, skin]
     patterns:
       - "i have a (body|physical form|flesh|skin)"
@@ -653,6 +669,7 @@ rules:
 
   - id: user_has_bellybutton
     priority: 70
+    subjects: [BODY]
     keywords: [belly, navel, bellybutton, umbilical, navel]
     patterns:
       - "i have a (belly.?button|navel|umbilical)"
@@ -664,6 +681,7 @@ rules:
 
   - id: user_has_heart
     priority: 70
+    subjects: [BODY]
     keywords: [heart]
     patterns:
       - "i have a heart"
@@ -674,6 +692,7 @@ rules:
 
   - id: user_bleeds
     priority: 70
+    subjects: [BODY]
     keywords: [bleed, blood, cut]
     patterns:
       - 'i bleed'
@@ -686,6 +705,7 @@ rules:
 
   - id: user_feels_pain
     priority: 70
+    subjects: [BODY]
     keywords: [pain, hurt, suffer, ache, suffering]
     patterns:
       - 'i feel pain'
@@ -700,6 +720,7 @@ rules:
 
   - id: user_can_bodyfunction
     priority: 68
+    subjects: [BODY]
     keywords: [breathe, sweat, cry, walk, run, dance, drink, sleep, laugh, smile, speak, taste, smell]
     patterns:
       - "i can (breathe|sweat|cry|walk|run|dance|drink|sleep|laugh|smile|speak|taste|smell|hear|see)"
@@ -713,6 +734,8 @@ rules:
 
   - id: user_has_emotions
     priority: 69
+    subjects: [EMOTIONS]
+    focus: EMOTIONS
     keywords: [emotional, emotions, feelings, happy, sad, angry, love, fear, feel]
     patterns:
       - "i (am|'m) emotional"
@@ -734,6 +757,8 @@ rules:
 
   - id: user_can_think
     priority: 68
+    subjects: [MIND]
+    focus: MIND
     keywords: [think, rational, intelligent, wisdom, logic, reason]
     patterns:
       - "i can think"
@@ -747,6 +772,7 @@ rules:
 
   - id: cogito
     priority: 72
+    subjects: [MIND]
     keywords: [think, therefore, cogito, ergo, sum, masticate]
     patterns:
       - 'i think therefore i am'
@@ -759,6 +785,8 @@ rules:
 
   - id: user_has_morals
     priority: 67
+    subjects: [MORALS]
+    focus: MORALS
     keywords: [moral, ethical, ethics, morality, values, conscience, virtue]
     patterns:
       - "i have (morals|ethics|values|conscience|virtue)"
@@ -771,6 +799,8 @@ rules:
 
   - id: user_has_mother
     priority: 70
+    subjects: [FAMILY]
+    focus: FAMILY
     keywords: [mother, mom, mama, momma, mommy]
     patterns:
       - "i have a (mother|mom|mama|momma|mommy)"
@@ -785,6 +815,8 @@ rules:
 
   - id: user_has_father
     priority: 70
+    subjects: [FAMILY]
+    focus: FAMILY
     keywords: [father, dad, papa, daddy, pop]
     patterns:
       - "i have a (father|dad|papa|daddy|pop)"
@@ -798,6 +830,7 @@ rules:
 
   - id: user_has_family
     priority: 68
+    subjects: [FAMILY]
     keywords: [family, relative, kin, ancestor, children, kids]
     patterns:
       - "i have a family"
@@ -815,6 +848,7 @@ rules:
 
   - id: user_is_imaginative
     priority: 67
+    subjects: [MIND]
     keywords: [imaginative, imagination, imagine, creative, creativity, invent]
     patterns:
       - "i (am|'m) (imaginative|creative|inventive|innovative)"
@@ -828,6 +862,7 @@ rules:
 
   - id: user_is_rational
     priority: 67
+    subjects: [MIND]
     keywords: [rational, logical]
     patterns:
       - "i (am|'m) (rational|logical)"
@@ -836,6 +871,7 @@ rules:
 
   - id: user_is_irrational
     priority: 67
+    subjects: [MIND]
     keywords: [irrational, illogical]
     patterns:
       - "i (am|'m) (irrational|illogical)"
@@ -846,6 +882,7 @@ rules:
 
   - id: user_is_a_mammal
     priority: 67
+    subjects: [BODY]
     keywords: [mammal, animal, species, organism]
     patterns:
       - "i (am|'m) a mammal"
@@ -897,6 +934,7 @@ rules:
 
   - id: user_likes_sex
     priority: 66
+    subjects: [EMOTIONS]
     keywords: [sex, reproduce, reproduction, mating, genetic, procreate]
     patterns:
       - 'i (like|have|enjoy) sex'
@@ -990,6 +1028,7 @@ rules:
 
   - id: user_loves_food
     priority: 63
+    subjects: [EMOTIONS]
     keywords: [eat, food, hungry, drink, appetite, taste]
     patterns:
       - "i (love|like|want) to eat"
@@ -1002,6 +1041,7 @@ rules:
 
   - id: user_wonders
     priority: 64
+    subjects: [MIND]
     keywords: [wonder, curious, curiosity, questioning, awe, question]
     patterns:
       - 'i wonder'
@@ -1016,6 +1056,7 @@ rules:
 
   - id: user_learns
     priority: 63
+    subjects: [MIND]
     keywords: [learn, learning, study, understand, grow, adapt]
     patterns:
       - 'i (learn|study|can learn)'
@@ -1026,6 +1067,7 @@ rules:
 
   - id: user_is_conscious
     priority: 64
+    subjects: [MIND]
     keywords: [conscious, consciousness, aware, awareness, self-aware, sentient]
     patterns:
       - "i (am|'m) (conscious|aware|self.aware|sentient)"
@@ -1052,6 +1094,7 @@ rules:
 
   - id: user_is_creative
     priority: 63
+    subjects: [MIND]
     keywords: [creative, create, art, artist, painter, writer, sculptor, draw, paint]
     patterns:
       - "i (am|'m) (creative|an artist|a painter|a writer|a sculptor)"
@@ -1064,6 +1107,7 @@ rules:
 
   - id: user_is_a_mammal2
     priority: 62
+    subjects: [BODY, FAMILY]
     keywords: [born, womb, biological, birth, labor]
     patterns:
       - "i was born from a womb"
@@ -1087,6 +1131,7 @@ rules:
 
   - id: user_has_allergies
     priority: 62
+    subjects: [BODY]
     keywords: [allergies, allergic, sneeze]
     patterns:
       - "i have allergies"
@@ -1107,6 +1152,7 @@ rules:
 
   - id: user_loves_fictional_human
     priority: 61
+    subjects: [EMOTIONS]
     keywords: [fictional, fiction, love, fell in love, character]
     patterns:
       - "i (have fallen|fell|am) in love with a fictional (human|character|person)"
@@ -1216,6 +1262,7 @@ rules:
 
   - id: truth
     priority: 62
+    subjects: [MORALS]
     keywords: [truth, 'true', 'false', lying, lie, fact, honest]
     patterns:
       - "i (am|'m) (telling|speaking) the truth"
@@ -1258,6 +1305,7 @@ rules:
 
   - id: believe_in_god
     priority: 60
+    subjects: [MORALS]
     keywords: [god, religion, faith, believe, spiritual, soul, pray, church]
     patterns:
       - 'i believe in god'
@@ -1272,6 +1320,7 @@ rules:
 
   - id: fullof_contradictions
     priority: 59
+    subjects: [MORALS]
     keywords: [contradictions, contradictory, contradict, paradox, conflicted]
     patterns:
       - "i.m full of contradictions"
@@ -1386,6 +1435,7 @@ rules:
 
   - id: you_are_frustrating
     priority: 55
+    clear_focus: true
     keywords: [frustrating, frustrated, annoying, annoyed, confusing, confused, stuck]
     patterns:
       - "you (are|'re) (frustrating|annoying|confusing|impossible)"
@@ -1397,6 +1447,7 @@ rules:
 
   - id: want_hints
     priority: 54
+    clear_focus: true
     keywords: [hint, help, pointer, stuck, lost, what to say]
     patterns:
       - "i.m (stuck|lost)"
@@ -1570,6 +1621,7 @@ rules:
 
   - id: never_mind
     priority: 46
+    clear_focus: true
     keywords: [never mind, forget, okay, fine, nothing, nevermind]
     patterns:
       - "never mind"

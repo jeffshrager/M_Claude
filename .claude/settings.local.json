@@ -3,7 +3,8 @@
     "allow": [
       "Read(//Users/jeffshrager/.claude/projects/**)",
       "Read(//Users/jeffshrager/.claude/**)",
-      "Bash(xargs ls -la)"
+      "Bash(xargs ls -la)",
+      "Bash(python3 *)"
     ]
   }
 }
