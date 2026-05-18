@@ -17,8 +17,10 @@ Pattern-matching chatbot. Reads rules from `mrmind.yaml` and responds using
 keyword matching and regex patterns. No network connection required.
 
 ```
-python3 mrmind.py
+python3 mrmind.py [-v | --verbose]
 ```
+
+Pass `-v` to enable verbose mode (see [Verbose mode](#verbose-mode) below).
 
 ### `mrmind_llm.py` — Claude-powered engine
 
@@ -203,6 +205,41 @@ Run `python3 mrmind.py` (no API key needed) and exercise the new rule. The
 ELIZA version is fast for iteration. Once the rule feels right, the LLM version
 will pick it up automatically — it reads the same `mrmind.yaml` to build its
 system prompt.
+
+---
+
+## Verbose mode
+
+Run with `-v` or `--verbose` to print a diagnostic line after every response:
+
+```
+MrMind: Fine, is she human?  Is your mother human?
+  [rule: user_has_mother | focus: FAMILY | followup: "Is your mother human?"]
+
+MrMind: Even vegetables have families.
+  [rule: user_has_family (*focus boosted*) | focus: FAMILY]
+
+MrMind: Tell me something human about yourself.
+  [rule: __default__ | focus: FAMILY | stall: 1/2]
+```
+
+**Fields:**
+
+| Field | Meaning |
+|-------|---------|
+| `rule: <id>` | Which rule fired. Special values: `__default__` (fallback line), `__topic_starter__` (proactive topic intro), `__followup__` (yes/no branch handled), `__farewell__` (bye) |
+| `(*focus boosted*)` | Focus caused this rule to win — it was found in the first pass because its subjects matched the active focus. Absent means the rule won on its own in the second pass. |
+| `focus: <SUBJECT>` | The current focused subject, or `none`. A focus active but no boost flag means the user said something that broke out of the focused subject. |
+| `followup: "..."` | A yes/no/maybe branch is now armed; shows the prompt MrMind just asked. The next user turn will be intercepted before normal pattern matching. |
+| `stall: N/T` | N consecutive unmatched turns so far; T is the threshold. When N reaches T a topic starter fires instead of another default. |
+
+Reading focus: the three meaningful combinations are:
+
+```
+[rule: user_has_father (*focus boosted*) | focus: FAMILY]   # focus did the work
+[rule: user_bleeds | focus: FAMILY]                         # focus active but irrelevant this turn
+[rule: user_has_body | focus: none]                         # no focus at all
+```
 
 ---
 
