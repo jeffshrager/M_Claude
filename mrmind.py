@@ -70,6 +70,7 @@ class MrMind:
         self.name = None
         self.response_idx = {}
         self.followup = None
+        self.focus = None           # current focused subject (str) or None
         self.rules_fired = []   # ordered list of rule ids matched this session
         self.consecutive_defaults = 0
         self.topic_starter_idx = 0
@@ -100,17 +101,21 @@ class MrMind:
             if response:
                 return self._personalize(response)
 
-        for rule in self.rules:
-            if self._matches(rule, lower):
-                self.rules_fired.append(rule['id'])
-                self.consecutive_defaults = 0
-                response = self._next_response(rule)
-                if 'followup' in rule:
-                    self.followup = rule['followup']
-                    prompt = rule['followup'].get('prompt', '')
-                    if prompt:
-                        response = response + '  ' + prompt
-                return self._personalize(response)
+        rule = self._find_match(lower)
+        if rule:
+            self.rules_fired.append(rule['id'])
+            self.consecutive_defaults = 0
+            response = self._next_response(rule)
+            if 'followup' in rule:
+                self.followup = rule['followup']
+                prompt = rule['followup'].get('prompt', '')
+                if prompt:
+                    response = response + '  ' + prompt
+            if 'focus' in rule:
+                self.focus = rule['focus']
+            elif rule.get('clear_focus'):
+                self.focus = None
+            return self._personalize(response)
 
         self.rules_fired.append('__default__')
         self.consecutive_defaults += 1
@@ -138,6 +143,18 @@ class MrMind:
         return self._personalize(response)
 
     # ------------------------------------------------------------------
+
+    def _find_match(self, lower):
+        # First pass: rules whose subjects include the current focus get priority.
+        if self.focus:
+            for rule in self.rules:
+                if self.focus in rule.get('subjects', []) and self._matches(rule, lower):
+                    return rule
+        # Second pass: all rules in normal priority order.
+        for rule in self.rules:
+            if self._matches(rule, lower):
+                return rule
+        return None
 
     def _matches(self, rule, lower):
         keywords = [str(k) for k in rule.get('keywords', [])]

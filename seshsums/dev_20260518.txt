@@ -71,9 +71,25 @@ f) User survey (MrMind/UserSurvey.g)
    Formal survey the bot could administer when user was stuck or
    explicitly asked for pointers. Referred to from multiple topics.
 
+g) Focus/Subjects system (pervasive across all .g files) *** KEY MISSING FEATURE ***
+   Every topic declares subjects: tags it belongs to (e.g. Subjects "ME","HELP").
+   When a topic fires it can set the focus: Focus subjects "is your mother human?"
+   On the next turn the engine preferentially tries topics whose subjects match
+   the current focus before falling back to normal priority-order matching.
+   Topics can check "If Focused then ..." to give shorter/different responses
+   when they are the active focus.
+   DontFocus clears the attention and returns to normal matching.
+   This is the mechanism that lets MrMind pursue a line of inquiry across
+   multiple turns without a fully scripted sequence -- the most impactful
+   missing capability. The current followup: field is a crude one-level
+   approximation; Focus/Subjects is the real thing.
+
 NEXT STEPS
 ----------
-- Decide which missing capability to implement next (20 Questions game
-  and Human Quotient score are the strongest candidates).
-- Consider whether these belong in mrmind.py (ELIZA engine) or only
-  in mrmind_llm.py, or both.
+- Implement Focus/Subjects in mrmind.py:
+    - Add optional subjects: and focus: fields to yaml rules
+    - MrMind tracks self.focus (current focused subject, or None)
+    - respond() does two-pass matching: focused topics first, then all others
+    - Rules with clear_focus: true reset self.focus when they fire
+    - Tag representative rules in mrmind.yaml to demonstrate the mechanism
+- After that: consider 20 Questions game and Human Quotient score.

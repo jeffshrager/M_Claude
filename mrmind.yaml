@@ -205,6 +205,7 @@ rules:
 
   - id: are_you_scripted
     priority: 74
+    subjects: [BOTS]
     keywords: [programmed, scripted, original, new, can't say]
     patterns:
       - 'you (are|were|.re) (programmed|scripted)'
@@ -217,6 +218,7 @@ rules:
 
   - id: you_cant_think
     priority: 74
+    subjects: [BOTS]
     keywords: [think, thinking, rational, intelligent, intelligence]
     patterns:
       - "you can.t think"
@@ -229,6 +231,7 @@ rules:
 
   - id: you_cant_emote
     priority: 73
+    subjects: [BOTS]
     keywords: [emotional, emotions, emote, feelings, feel]
     patterns:
       - "you can.t (emote|feel|have emotions|be emotional)"
@@ -242,6 +245,7 @@ rules:
 
   - id: you_are_a_trick
     priority: 73
+    subjects: [BOTS]
     keywords: [trick, stunt, bogus, hoax, fake]
     patterns:
       - 'you (are|.re) (a )?(trick|stunt|bogus|hoax|fake)'
@@ -263,6 +267,7 @@ rules:
 
   - id: what_is_a_bot
     priority: 71
+    subjects: [BOTS]
     keywords: [bot, chatterbot, chatbot, virtual robot]
     patterns:
       - 'what is a (chatter)?bot'
@@ -275,6 +280,7 @@ rules:
 
   - id: are_you_a_bot
     priority: 70
+    subjects: [BOTS]
     keywords: [robot, alien, clone, computer, machine, bot, program]
     patterns:
       - 'are you a (robot|android|cyborg|alien|clone|program)'
@@ -388,6 +394,8 @@ rules:
 
   - id: user_is_human
     priority: 86
+    subjects: [CONVINCING, HUMANITY]
+    focus: CONVINCING
     keywords: [human, person, people]
     patterns:
       - "i (am|'m) (a )?human"
