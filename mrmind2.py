@@ -55,9 +55,9 @@ def name_to_key(name):
 
 
 def identify_user(client, raw_input, users):
-    """Fuzzy-match raw_input against registered users. Returns (key, name) or None."""
+    """Fuzzy-match raw_input against registered users. Returns ((key, name) or None, prompt)."""
     if not users:
-        return None
+        return None, '(no registered users)'
     user_list = '\n'.join(f'key={k}  name="{n}"  phrase="{p}"' for k, n, p in users)
     prompt = (
         f"Registered users:\n{user_list}\n\n"
@@ -72,15 +72,15 @@ def identify_user(client, raw_input, users):
     )
     result = r.content[0].text.strip().lower()
     if result == 'new':
-        return None
+        return None, prompt
     for k, n, _ in users:
         if k == result:
-            return (k, n)
-    return None
+            return (k, n), prompt
+    return None, prompt
 
 
 def extract_name_and_phrase(client, raw_input):
-    """Pull out a person's name and identifying phrase from free text."""
+    """Pull out a person's name and identifying phrase from free text. Returns ((name, phrase), prompt)."""
     prompt = (
         f"Extract the person's full name and identifying phrase from this text:\n\"{raw_input}\"\n\n"
         f"Reply in exactly this format (two lines, nothing else):\n"
@@ -97,11 +97,11 @@ def extract_name_and_phrase(client, raw_input):
             name = line[5:].strip() or None
         elif line.startswith('phrase:'):
             phrase = line[7:].strip() or None
-    return name, phrase
+    return (name, phrase), prompt
 
 
 def generate_return_greeting(client, user_name, context):
-    """Produce a MrMind greeting that picks up where the last session left off."""
+    """Produce a MrMind greeting that picks up where the last session left off. Returns (greeting, prompt)."""
     prompt = (
         f"You are MrMind. {user_name} has returned for another conversation. "
         f"Your memory of them:\n{context}\n\n"
@@ -113,11 +113,11 @@ def generate_return_greeting(client, user_name, context):
         model='claude-opus-4-7', max_tokens=128,
         messages=[{'role': 'user', 'content': prompt}],
     )
-    return r.content[0].text.strip()
+    return r.content[0].text.strip(), prompt
 
 
 def compress_context(client, user_name, old_context, exchanges):
-    """Distill the session into an updated briefing note for future sessions."""
+    """Distill the session into an updated briefing note for future sessions. Returns (context, prompt)."""
     conv_text = '\n'.join(f'Human: {u}\nMrMind: {b}' for u, b in exchanges)
     existing = f"EXISTING CONTEXT:\n{old_context}\n\n" if old_context else ""
     prompt = (
@@ -130,7 +130,7 @@ def compress_context(client, user_name, old_context, exchanges):
         model='claude-opus-4-7', max_tokens=512,
         messages=[{'role': 'user', 'content': prompt}],
     )
-    return r.content[0].text.strip()
+    return r.content[0].text.strip(), prompt
 
 
 # ---------------------------------------------------------------------------
@@ -269,7 +269,6 @@ class Session:
         sesh_dir.mkdir(exist_ok=True)
 
         self._stamp = stamp
-        self._sesh_path = sesh_dir / f'mm2_{stamp}.txt'
         self._conv_path = None
         self._conv_file = None
         self._exchanges = []
@@ -278,6 +277,24 @@ class Session:
         self._total_output_tokens = 0
         self._total_cache_read_tokens = 0
         self._total_cache_write_tokens = 0
+        self._prompts_written = 0
+
+        self._sesh_file = open(sesh_dir / f'mm2_{stamp}.txt', 'w')
+        self._sesh_file.write(
+            f'Session Summary (MrMind 2) -- {self.start_time.strftime("%Y-%m-%d %H:%M:%S")}\n'
+        )
+        self._sesh_file.write('=' * 60 + '\n\n')
+        self._sesh_file.flush()
+
+    def record_prompt(self, label: str, text: str):
+        if self._prompts_written == 0:
+            self._sesh_file.write('PROMPTS IN EFFECT\n')
+            self._sesh_file.write('-' * 60 + '\n\n')
+        self._sesh_file.write(f'[{label}]\n')
+        self._sesh_file.write(text)
+        self._sesh_file.write('\n\n')
+        self._sesh_file.flush()
+        self._prompts_written += 1
 
     def bind_user(self, user_key: str):
         """Open the conversation log under mm2/users/{user_key}/conversations/."""
@@ -329,29 +346,30 @@ class Session:
             )
             self._conv_file.close()
 
-        with open(self._sesh_path, 'w') as f:
-            f.write(f'Session Summary (MrMind 2) -- {self.start_time.strftime("%Y-%m-%d %H:%M:%S")}\n')
-            f.write('=' * 60 + '\n\n')
-            f.write(f'Duration:          {int(duration.total_seconds())} seconds\n')
-            f.write(f'Exchanges:         {len(self._exchanges)}\n')
-            f.write(f'User name:         {self._name or "(not captured)"}\n')
-            f.write(f'Input tokens:      {self._total_input_tokens}\n')
-            f.write(f'Output tokens:     {self._total_output_tokens}\n')
-            f.write(f'Cache read tokens: {self._total_cache_read_tokens}\n')
-            f.write(f'Cache write tokens:{self._total_cache_write_tokens}\n')
-            if self._conv_path:
-                f.write(f'Transcript:        {self._conv_path}\n')
-            f.write('\n')
-            if self._exchanges:
-                f.write('First exchange:\n')
-                u, b = self._exchanges[0]
-                f.write(f'  You:    {u}\n')
-                f.write(f'  MrMind: {b}\n')
-            if len(self._exchanges) > 1:
-                f.write('\nLast exchange:\n')
-                u, b = self._exchanges[-1]
-                f.write(f'  You:    {u}\n')
-                f.write(f'  MrMind: {b}\n')
+        f = self._sesh_file
+        if self._prompts_written:
+            f.write('-' * 60 + '\n\n')
+        f.write(f'Duration:          {int(duration.total_seconds())} seconds\n')
+        f.write(f'Exchanges:         {len(self._exchanges)}\n')
+        f.write(f'User name:         {self._name or "(not captured)"}\n')
+        f.write(f'Input tokens:      {self._total_input_tokens}\n')
+        f.write(f'Output tokens:     {self._total_output_tokens}\n')
+        f.write(f'Cache read tokens: {self._total_cache_read_tokens}\n')
+        f.write(f'Cache write tokens:{self._total_cache_write_tokens}\n')
+        if self._conv_path:
+            f.write(f'Transcript:        {self._conv_path}\n')
+        f.write('\n')
+        if self._exchanges:
+            f.write('First exchange:\n')
+            u, b = self._exchanges[0]
+            f.write(f'  You:    {u}\n')
+            f.write(f'  MrMind: {b}\n')
+        if len(self._exchanges) > 1:
+            f.write('\nLast exchange:\n')
+            u, b = self._exchanges[-1]
+            f.write(f'  You:    {u}\n')
+            f.write(f'  MrMind: {b}\n')
+        f.close()
 
 
 # ---------------------------------------------------------------------------
@@ -373,6 +391,7 @@ def main():
 
     client = anthropic.Anthropic()
     session = Session(MM2_DIR)
+    session.record_prompt('SYSTEM_PROMPT', SYSTEM_PROMPT)
     messages = []
 
     print('=' * 60)
@@ -401,22 +420,27 @@ def main():
     user_key = user_name = None
     context = ''
 
-    match = identify_user(client, id_input, users)
+    match, id_prompt_text = identify_user(client, id_input, users)
+    session.record_prompt('INTERNAL: identify_user', id_prompt_text)
 
     if match:
         user_key, user_name = match
         context = load_context(user_key)
+        if context:
+            session.record_prompt('RECOVERED_CONTEXT', context)
         session.bind_user(user_key)
         session.log_exchange(id_input, f'[identified as {user_name}]')
         if context:
-            greeting = generate_return_greeting(client, user_name, context)
+            greeting, greet_prompt = generate_return_greeting(client, user_name, context)
+            session.record_prompt('INTERNAL: generate_return_greeting', greet_prompt)
         else:
             greeting = f"Ah, {user_name}. Are you human?"
     else:
         # Enroll a new user — loop until they confirm or give up
         current_input = id_input
         while True:
-            name, phrase = extract_name_and_phrase(client, current_input)
+            (name, phrase), enroll_prompt = extract_name_and_phrase(client, current_input)
+            session.record_prompt('INTERNAL: extract_name_and_phrase', enroll_prompt)
 
             if not name or not phrase:
                 prompt = "I couldn't quite make that out. Please tell me your name and a phrase I'll remember you by."
@@ -547,7 +571,8 @@ def main():
     if user_key and session._exchanges:
         print('MrMind: One moment while I combobulate my memories of you...')
         print()
-        new_context = compress_context(client, user_name, context, session._exchanges)
+        new_context, compress_prompt = compress_context(client, user_name, context, session._exchanges)
+        session.record_prompt('INTERNAL: compress_context', compress_prompt)
         save_context(user_key, new_context)
 
     session.close()
