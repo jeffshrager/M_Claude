@@ -545,6 +545,8 @@ def main():
 
     # Compress and save updated context for known users
     if user_key and session._exchanges:
+        print('MrMind: One moment while I combobulate my memories of you...')
+        print()
         new_context = compress_context(client, user_name, context, session._exchanges)
         save_context(user_key, new_context)
 
