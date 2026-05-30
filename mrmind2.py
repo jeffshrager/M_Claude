@@ -423,26 +423,22 @@ def main():
 
     user_key = user_name = None
     context = ''
+    match_input = id_input   # the input that produced the final match, for logging
 
     match, id_prompt_text = identify_user(client, id_input, users)
     session.record_prompt('INTERNAL: identify_user', id_prompt_text)
 
-    if match:
-        user_key, user_name = match
-        context = load_context(user_key)
-        if context:
-            session.record_prompt('RECOVERED_CONTEXT', context)
-        session.bind_user(user_key)
-        session.log_exchange(id_input, f'[identified as {user_name}]')
-        if context:
-            greeting, greet_prompt = generate_return_greeting(client, user_name, context)
-            session.record_prompt('INTERNAL: generate_return_greeting', greet_prompt)
-        else:
-            greeting = f"Ah, {user_name}. Are you human?"
-    else:
-        # Enroll a new user — loop until they confirm or give up
+    if not match:
+        # Either the user gave unclear info or genuinely is new.
+        # On each retry, try identify_user first before assuming new enrollment.
         current_input = id_input
         while True:
+            re_match, _ = identify_user(client, current_input, users)
+            if re_match:
+                match = re_match
+                match_input = current_input
+                break
+
             (name, phrase), enroll_prompt = extract_name_and_phrase(client, current_input)
             session.record_prompt('INTERNAL: extract_name_and_phrase', enroll_prompt)
 
@@ -493,6 +489,20 @@ def main():
                     session.close()
                     return
                 print()
+
+    # Returning-user path: covers both the initial match and the re-check match.
+    if match and user_key is None:
+        user_key, user_name = match
+        context = load_context(user_key)
+        if context:
+            session.record_prompt('RECOVERED_CONTEXT', context)
+        session.bind_user(user_key)
+        session.log_exchange(match_input, f'[identified as {user_name}]')
+        if context:
+            greeting, greet_prompt = generate_return_greeting(client, user_name, context)
+            session.record_prompt('INTERNAL: generate_return_greeting', greet_prompt)
+        else:
+            greeting = f"Ah, {user_name}. Are you human?"
 
     print(f'MrMind: {greeting}')
     print()
