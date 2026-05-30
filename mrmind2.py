@@ -62,9 +62,13 @@ def identify_user(client, raw_input, users):
     prompt = (
         f"Registered users:\n{user_list}\n\n"
         f"Input: \"{raw_input}\"\n\n"
-        f"Does the input identify one of these users by name and phrase? "
-        f"Allow generous partial/fuzzy matches on both name and phrase. "
-        f"Reply with just the key if matched, or the word 'new' if not."
+        f"Does this input match one of the registered users? "
+        f"Both a name and a phrase must be present, but match each one loosely:\n"
+        f"- Name: first name alone, last name alone, nickname, approximate or "
+        f"misspelled version all count. 'jeff' matches 'Jeff Shrager'.\n"
+        f"- Phrase: approximate spelling, phonetic similarity, or paraphrase counts. "
+        f"'fubar' matches 'Foobar'.\n"
+        f"Reply with just the matching key, or the word 'new' if no match."
     )
     r = client.messages.create(
         model='claude-opus-4-7', max_tokens=32,
