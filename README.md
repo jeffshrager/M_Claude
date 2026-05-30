@@ -32,14 +32,22 @@ for Claude to draw from. Requires an `ANTHROPIC_API_KEY` environment variable.
 python3 mrmind_llm.py
 ```
 
-### `mrmind2.py` — Claude-native engine (self-contained)
+### `mrmind2.py` — Claude-native engine (self-contained, multi-user, with memory)
 
 A modern reconstruction with no script at all. The character, Socratic mission,
 and full thematic territory are baked into a rich system prompt inside the file;
 Claude reasons freely about what to probe next based on the actual conversation.
 
-**This file is fully self-contained** — no yaml or other files needed. You can
-hand it to another user and it will work with just:
+**Multi-user identity and memory.** At the start of each session MrMind asks
+who you are and for a passphrase. It uses Claude to fuzzy-match your response
+against a registry of known users. Returning users get a personalised greeting
+that picks up threads from prior conversations. New users are enrolled
+interactively with a confirm-before-saving step. At the end of each session
+Claude compresses the conversation into a briefing note that is used to brief
+MrMind next time.
+
+**This file is fully self-contained** — no other files needed to get started.
+Drop it in a directory and run:
 
 ```
 pip install anthropic
@@ -47,9 +55,23 @@ export ANTHROPIC_API_KEY=sk-ant-...
 python3 mrmind2.py [-v | --verbose]
 ```
 
-Verbose mode prints token and cache usage after each response (useful for
-monitoring API cost). Logs are written to `conversations/` and `seshsums/`
-next to wherever the script lives.
+On first run it creates the entire `mm2/` directory structure automatically.
+Verbose mode (`-v`) prints token and cache usage after each response.
+
+#### `mm2/` directory layout
+
+```
+mm2/
+  users.tsv                    ← registry: key, name, passphrase (tab-separated)
+  session_summaries/           ← short summary written after every session
+  users/
+    {key}.txt                  ← compressed memory briefing for that user
+    {key}/
+      conversations/           ← full transcripts for that user
+```
+
+Anonymous sessions (user declines enrollment) write a session summary but no
+transcript.
 
 ---
 
@@ -66,7 +88,7 @@ version.
 
 ## What gets logged
 
-Both versions write two files automatically at the end of each session:
+**`mrmind.py` and `mrmind_llm.py`** write two files next to the script:
 
 | Directory | Contents |
 |-----------|----------|
@@ -75,6 +97,10 @@ Both versions write two files automatically at the end of each session:
 
 LLM sessions are prefixed `llm_` to distinguish them from ELIZA sessions.
 Files are named by timestamp, e.g. `20260518_142300.txt`.
+
+**`mrmind2.py`** writes everything under `mm2/` (see directory layout above).
+`seshsums/` at the project root is reserved for developer session notes and is
+not touched by any of the chatbots.
 
 ---
 

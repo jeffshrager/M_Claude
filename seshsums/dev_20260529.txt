@@ -1,0 +1,61 @@
+Development Session Summary -- 2026-05-29
+============================================================
+
+WHAT EXISTED AT SESSION START
+------------------------------
+mrmind2.py -- Claude-native chatbot, working but single-user, no memory.
+  - Rich system prompt encoding MrMind's character and Socratic mission
+  - Session logging to conversations/ and seshsums/ at project root
+  - Token/cache usage tracking with -v flag
+
+seshsums/ at project root was being written to by mrmind2.py (name collision
+with developer session notes).
+
+WHAT HAPPENED THIS SESSION
+---------------------------
+1. Multi-user identity system
+   - mm2/users.tsv registry: tab-separated (key, name, passphrase) rows
+   - On startup, MrMind asks for name + passphrase before greeting
+   - Claude fuzzy-matches the response against the registry
+   - Returning users: loads prior context, generates personalised greeting
+   - New users: extract name/phrase via Claude, present back for confirmation
+     with a formal "Your name is X and your phrase is Y -- correct?" loop
+     that retries on 'no' rather than just accepting the first attempt
+
+2. Per-user memory (compressed briefing notes)
+   - load_context(key): reads mm2/users/{key}.txt at session start
+   - Context injected as a second system prompt block for the whole session
+   - generate_return_greeting(): Claude writes a personalised opener using
+     the prior context (subtle, in-character, no "welcome back")
+   - compress_context(): called at session end, one extra Claude API call
+     that distills the conversation into a 3-8 sentence briefing note
+   - Briefing note overwrites mm2/users/{key}.txt for next session
+
+3. Directory structure rationalisation
+   - All mrmind2 artifacts moved under mm2/ (nothing at project root)
+   - conversations/ and session_summaries/ under mm2/, not project root
+   - Per-user transcripts under mm2/users/{key}/conversations/
+   - Anonymous sessions: session_summaries/ written but no transcript
+   - seshsums/ at project root now exclusively for developer notes
+   - Session class refactored: conv file not opened until bind_user() is
+     called, so anonymous sessions never create a transcript file
+
+4. Robustness
+   - KeyboardInterrupt trapped at the outer loop level (not just at input())
+     so ^C during an API call still triggers memory compression before exit
+   - "One moment while I combobulate my memories of you..." printed before
+     the end-of-session compression call so users don't ^C prematurely
+   - Full self-bootstrapping on first run -- no manual directory setup needed
+
+FILES CHANGED
+-------------
+  mrmind2.py   -- all changes above
+  README.md    -- updated mrmind2.py section with multi-user/memory docs,
+                  mm2/ layout table, and corrected logging section
+
+NEXT STEPS
+----------
+- Test full enrollment + return-visit cycle end to end
+- Consider whether session_summaries/ should move under mm2/users/{key}/
+  for identified sessions (currently all summaries go to mm2/session_summaries/)
+- Possible: expose a --list-users flag to see who's registered
