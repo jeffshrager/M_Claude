@@ -264,13 +264,14 @@ class Session:
         self.start_time = datetime.now()
         stamp = self.start_time.strftime('%Y%m%d_%H%M%S')
 
-        conv_dir = base_dir / 'conversations'
-        sesh_dir = base_dir / 'seshsums'
-        conv_dir.mkdir(exist_ok=True)
+        base_dir.mkdir(parents=True, exist_ok=True)
+        sesh_dir = base_dir / 'session_summaries'
         sesh_dir.mkdir(exist_ok=True)
 
-        self._conv_path = conv_dir / f'mm2_{stamp}.txt'
+        self._stamp = stamp
         self._sesh_path = sesh_dir / f'mm2_{stamp}.txt'
+        self._conv_path = None
+        self._conv_file = None
         self._exchanges = []
         self._name = None
         self._total_input_tokens = 0
@@ -278,33 +279,29 @@ class Session:
         self._total_cache_read_tokens = 0
         self._total_cache_write_tokens = 0
 
+    def bind_user(self, user_key: str):
+        """Open the conversation log under mm2/users/{user_key}/conversations/."""
+        user_conv_dir = USERS_DIR / user_key / 'conversations'
+        user_conv_dir.mkdir(parents=True, exist_ok=True)
+        self._conv_path = user_conv_dir / f'mm2_{self._stamp}.txt'
         self._conv_file = open(self._conv_path, 'w')
         self._conv_file.write(f'MrMind 2 session  {self.start_time.isoformat()}\n')
         self._conv_file.write('=' * 60 + '\n\n')
 
-    def bind_user(self, user_key: str):
-        """Move the conversation log into mm2/users/{user_key}/conversations/."""
-        user_conv_dir = USERS_DIR / user_key / 'conversations'
-        user_conv_dir.mkdir(parents=True, exist_ok=True)
-        new_path = user_conv_dir / self._conv_path.name
-        self._conv_file.flush()
-        self._conv_file.close()
-        self._conv_path.rename(new_path)
-        self._conv_path = new_path
-        self._conv_file = open(self._conv_path, 'a')
-
     def log_greeting(self, text: str):
-        self._conv_file.write(f'MrMind: {text}\n\n')
-        self._conv_file.flush()
+        if self._conv_file:
+            self._conv_file.write(f'MrMind: {text}\n\n')
+            self._conv_file.flush()
 
     def log_exchange(self, user_input: str, bot_response: str, note: str = ''):
         self._exchanges.append((user_input, bot_response))
-        self._conv_file.write(f'You:    {user_input}\n')
-        self._conv_file.write(f'MrMind: {bot_response}\n')
-        if note:
-            self._conv_file.write(f'  {note}\n')
-        self._conv_file.write('\n')
-        self._conv_file.flush()
+        if self._conv_file:
+            self._conv_file.write(f'You:    {user_input}\n')
+            self._conv_file.write(f'MrMind: {bot_response}\n')
+            if note:
+                self._conv_file.write(f'  {note}\n')
+            self._conv_file.write('\n')
+            self._conv_file.flush()
 
     def try_capture_name(self, text: str):
         for pat in NAME_PATS:
@@ -325,11 +322,12 @@ class Session:
         end_time = datetime.now()
         duration = end_time - self.start_time
 
-        self._conv_file.write(
-            f'\n[Session ended {end_time.isoformat()}  '
-            f'duration {int(duration.total_seconds())}s]\n'
-        )
-        self._conv_file.close()
+        if self._conv_file:
+            self._conv_file.write(
+                f'\n[Session ended {end_time.isoformat()}  '
+                f'duration {int(duration.total_seconds())}s]\n'
+            )
+            self._conv_file.close()
 
         with open(self._sesh_path, 'w') as f:
             f.write(f'Session Summary (MrMind 2) -- {self.start_time.strftime("%Y-%m-%d %H:%M:%S")}\n')
@@ -341,7 +339,8 @@ class Session:
             f.write(f'Output tokens:     {self._total_output_tokens}\n')
             f.write(f'Cache read tokens: {self._total_cache_read_tokens}\n')
             f.write(f'Cache write tokens:{self._total_cache_write_tokens}\n')
-            f.write(f'Transcript:        conversations/{self._conv_path.name}\n')
+            if self._conv_path:
+                f.write(f'Transcript:        {self._conv_path}\n')
             f.write('\n')
             if self._exchanges:
                 f.write('First exchange:\n')
@@ -373,7 +372,7 @@ def main():
     args = parser.parse_args()
 
     client = anthropic.Anthropic()
-    session = Session(Path(__file__).parent)
+    session = Session(MM2_DIR)
     messages = []
 
     print('=' * 60)
