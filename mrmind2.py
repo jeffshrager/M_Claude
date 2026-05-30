@@ -413,27 +413,31 @@ def main():
         else:
             greeting = f"Ah, {user_name}. Are you human?"
     else:
-        # Try to enroll a new user
-        name, phrase = extract_name_and_phrase(client, id_input)
-        if not name or not phrase:
-            enroll_prompt = "I couldn't quite make that out. What shall I call you, and what phrase will you give me to know you by?"
-            print(f'MrMind: {enroll_prompt}')
-            print()
-            session.log_exchange(id_input, enroll_prompt)
-            try:
-                id_input = input('You: ').strip()
-            except (EOFError, KeyboardInterrupt):
-                print()
-                session.close()
-                return
-            print()
-            name, phrase = extract_name_and_phrase(client, id_input)
+        # Enroll a new user — loop until they confirm or give up
+        current_input = id_input
+        while True:
+            name, phrase = extract_name_and_phrase(client, current_input)
 
-        if name and phrase:
-            confirm_prompt = f"I don't have you on record, {name}. Shall I remember you by the phrase \"{phrase}\"?"
+            if not name or not phrase:
+                prompt = "I couldn't quite make that out. Please tell me your name and a phrase I'll remember you by."
+                print(f'MrMind: {prompt}')
+                print()
+                try:
+                    current_input = input('You: ').strip()
+                except (EOFError, KeyboardInterrupt):
+                    print()
+                    session.close()
+                    return
+                print()
+                continue
+
+            confirm_prompt = (
+                f"Let me make sure I have this right. "
+                f"Your name is {name}, and your phrase is \"{phrase}\". "
+                f"Is that correct? Please say yes or no."
+            )
             print(f'MrMind: {confirm_prompt}')
             print()
-            session.log_exchange(id_input, confirm_prompt)
             try:
                 confirm = input('You: ').strip().lower()
             except (EOFError, KeyboardInterrupt):
@@ -441,19 +445,26 @@ def main():
                 session.close()
                 return
             print()
-            if any(w in confirm for w in ('yes', 'y', 'sure', 'ok', 'yeah', 'yep')):
+
+            if any(w in confirm for w in ('yes', 'y', 'yeah', 'yep', 'correct', 'right')):
                 user_key = name_to_key(name)
                 user_name = name
                 save_new_user(user_key, user_name, phrase)
                 session.bind_user(user_key)
                 session.log_exchange(confirm, f'[enrolled as {user_name}, key={user_key}]')
                 greeting = f"Very well. I'll remember you as {name}. Now — are you human?"
+                break
             else:
-                session.log_exchange(confirm, '[enrollment declined, continuing anonymous]')
-                greeting = GREETING
-        else:
-            session.log_exchange(id_input, '[could not extract name/phrase, continuing anonymous]')
-            greeting = GREETING
+                retry_prompt = "Let's try again. What is your name and what phrase shall I know you by?"
+                print(f'MrMind: {retry_prompt}')
+                print()
+                try:
+                    current_input = input('You: ').strip()
+                except (EOFError, KeyboardInterrupt):
+                    print()
+                    session.close()
+                    return
+                print()
 
     print(f'MrMind: {greeting}')
     print()
