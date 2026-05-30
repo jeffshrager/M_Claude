@@ -8,11 +8,129 @@ about what to probe next based on the actual conversation.
 """
 
 import argparse
+import csv
 import re
 import sys
 import anthropic
 from datetime import datetime
 from pathlib import Path
+
+
+# ---------------------------------------------------------------------------
+# Multi-user identity / memory
+# ---------------------------------------------------------------------------
+
+MM2_DIR   = Path(__file__).parent / 'mm2'
+USERS_DIR = MM2_DIR / 'users'
+USERS_TSV = MM2_DIR / 'users.tsv'
+
+
+def load_users():
+    """Return list of (key, name, passphrase) from users.tsv."""
+    if not USERS_TSV.exists():
+        return []
+    with open(USERS_TSV, newline='') as f:
+        return [tuple(row) for row in csv.reader(f, delimiter='\t') if len(row) == 3]
+
+
+def save_new_user(key, name, passphrase):
+    MM2_DIR.mkdir(exist_ok=True)
+    USERS_DIR.mkdir(exist_ok=True)
+    with open(USERS_TSV, 'a', newline='') as f:
+        csv.writer(f, delimiter='\t').writerow([key, name, passphrase])
+
+
+def load_context(key):
+    path = USERS_DIR / f'{key}.txt'
+    return path.read_text().strip() if path.exists() else ''
+
+
+def save_context(key, text):
+    USERS_DIR.mkdir(parents=True, exist_ok=True)
+    (USERS_DIR / f'{key}.txt').write_text(text)
+
+
+def name_to_key(name):
+    return re.sub(r'\W+', '_', name.strip().lower()).strip('_')
+
+
+def identify_user(client, raw_input, users):
+    """Fuzzy-match raw_input against registered users. Returns (key, name) or None."""
+    if not users:
+        return None
+    user_list = '\n'.join(f'key={k}  name="{n}"  phrase="{p}"' for k, n, p in users)
+    prompt = (
+        f"Registered users:\n{user_list}\n\n"
+        f"Input: \"{raw_input}\"\n\n"
+        f"Does the input identify one of these users by name and phrase? "
+        f"Allow generous partial/fuzzy matches on both name and phrase. "
+        f"Reply with just the key if matched, or the word 'new' if not."
+    )
+    r = client.messages.create(
+        model='claude-opus-4-7', max_tokens=32,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    result = r.content[0].text.strip().lower()
+    if result == 'new':
+        return None
+    for k, n, _ in users:
+        if k == result:
+            return (k, n)
+    return None
+
+
+def extract_name_and_phrase(client, raw_input):
+    """Pull out a person's name and identifying phrase from free text."""
+    prompt = (
+        f"Extract the person's full name and identifying phrase from this text:\n\"{raw_input}\"\n\n"
+        f"Reply in exactly this format (two lines, nothing else):\n"
+        f"name: <full name>\n"
+        f"phrase: <phrase>"
+    )
+    r = client.messages.create(
+        model='claude-opus-4-7', max_tokens=64,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    name = phrase = None
+    for line in r.content[0].text.strip().splitlines():
+        if line.startswith('name:'):
+            name = line[5:].strip() or None
+        elif line.startswith('phrase:'):
+            phrase = line[7:].strip() or None
+    return name, phrase
+
+
+def generate_return_greeting(client, user_name, context):
+    """Produce a MrMind greeting that picks up where the last session left off."""
+    prompt = (
+        f"You are MrMind. {user_name} has returned for another conversation. "
+        f"Your memory of them:\n{context}\n\n"
+        f"Write a brief MrMind greeting (1-2 sentences) that subtly acknowledges the prior "
+        f"conversation and re-opens the philosophical probe. Do not say 'welcome back'. "
+        f"Stay in character: witty, slightly provocative, never hostile."
+    )
+    r = client.messages.create(
+        model='claude-opus-4-7', max_tokens=128,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    return r.content[0].text.strip()
+
+
+def compress_context(client, user_name, old_context, exchanges):
+    """Distill the session into an updated briefing note for future sessions."""
+    conv_text = '\n'.join(f'Human: {u}\nMrMind: {b}' for u, b in exchanges)
+    existing = f"EXISTING CONTEXT:\n{old_context}\n\n" if old_context else ""
+    prompt = (
+        f"{existing}NEW CONVERSATION WITH {user_name}:\n{conv_text}\n\n"
+        f"Write a concise briefing note (3-8 sentences) for MrMind about {user_name}: "
+        f"who they are, what positions they've taken on being human, which philosophical "
+        f"threads were productive, and what to probe next time. Be specific and useful."
+    )
+    r = client.messages.create(
+        model='claude-opus-4-7', max_tokens=512,
+        messages=[{'role': 'user', 'content': prompt}],
+    )
+    return r.content[0].text.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -164,6 +282,17 @@ class Session:
         self._conv_file.write(f'MrMind 2 session  {self.start_time.isoformat()}\n')
         self._conv_file.write('=' * 60 + '\n\n')
 
+    def bind_user(self, user_key: str):
+        """Move the conversation log into mm2/users/{user_key}/conversations/."""
+        user_conv_dir = USERS_DIR / user_key / 'conversations'
+        user_conv_dir.mkdir(parents=True, exist_ok=True)
+        new_path = user_conv_dir / self._conv_path.name
+        self._conv_file.flush()
+        self._conv_file.close()
+        self._conv_path.rename(new_path)
+        self._conv_path = new_path
+        self._conv_file = open(self._conv_path, 'a')
+
     def log_greeting(self, text: str):
         self._conv_file.write(f'MrMind: {text}\n\n')
         self._conv_file.flush()
@@ -252,65 +381,162 @@ def main():
     print("Type 'quit' or 'bye' to exit.")
     print('=' * 60)
     print()
-    print(f'MrMind: {GREETING}')
+
+    # ------------------------------------------------------------------
+    # Identity step
+    # ------------------------------------------------------------------
+    users = load_users()
+    id_prompt = "Before we begin — who are you, and what is your phrase?"
+    print(f'MrMind: {id_prompt}')
     print()
-    session.log_greeting(GREETING)
+    session.log_greeting(id_prompt)
 
-    while True:
-        try:
-            user_input = input('You: ').strip()
-        except (EOFError, KeyboardInterrupt):
-            print()
-            print(f'MrMind: {FAREWELL}')
-            session.log_exchange('(session ended)', FAREWELL)
-            break
-
-        if not user_input:
-            continue
-
-        session.try_capture_name(user_input)
-
-        if BYE_PAT.search(user_input.lower()):
-            print(f'MrMind: {FAREWELL}')
-            print()
-            session.log_exchange(user_input, FAREWELL)
-            break
-
-        messages.append({'role': 'user', 'content': user_input})
-
-        response = client.messages.create(
-            model='claude-opus-4-7',
-            max_tokens=256,
-            system=[{
-                'type': 'text',
-                'text': SYSTEM_PROMPT,
-                'cache_control': {'type': 'ephemeral'},
-            }],
-            messages=messages,
-        )
-
-        bot_text = response.content[0].text.strip()
-        session.record_usage(response.usage)
-        messages.append({'role': 'assistant', 'content': bot_text})
-
-        print(f'MrMind: {bot_text}')
-
-        note = ''
-        if args.verbose:
-            u = response.usage
-            cache_read = getattr(u, 'cache_read_input_tokens', 0)
-            cache_write = getattr(u, 'cache_creation_input_tokens', 0)
-            note = (
-                f'[in: {u.input_tokens} | out: {u.output_tokens} | '
-                f'cache_read: {cache_read} | cache_write: {cache_write}]'
-            )
-            print(f'  {note}')
-
+    try:
+        id_input = input('You: ').strip()
+    except (EOFError, KeyboardInterrupt):
         print()
-        session.log_exchange(user_input, bot_text, note=note)
+        session.close()
+        return
+    print()
 
-        if BYE_PAT.search(bot_text.lower()):
-            break
+    user_key = user_name = None
+    context = ''
+
+    match = identify_user(client, id_input, users)
+
+    if match:
+        user_key, user_name = match
+        context = load_context(user_key)
+        session.bind_user(user_key)
+        session.log_exchange(id_input, f'[identified as {user_name}]')
+        if context:
+            greeting = generate_return_greeting(client, user_name, context)
+        else:
+            greeting = f"Ah, {user_name}. Are you human?"
+    else:
+        # Try to enroll a new user
+        name, phrase = extract_name_and_phrase(client, id_input)
+        if not name or not phrase:
+            enroll_prompt = "I couldn't quite make that out. What shall I call you, and what phrase will you give me to know you by?"
+            print(f'MrMind: {enroll_prompt}')
+            print()
+            session.log_exchange(id_input, enroll_prompt)
+            try:
+                id_input = input('You: ').strip()
+            except (EOFError, KeyboardInterrupt):
+                print()
+                session.close()
+                return
+            print()
+            name, phrase = extract_name_and_phrase(client, id_input)
+
+        if name and phrase:
+            confirm_prompt = f"I don't have you on record, {name}. Shall I remember you by the phrase \"{phrase}\"?"
+            print(f'MrMind: {confirm_prompt}')
+            print()
+            session.log_exchange(id_input, confirm_prompt)
+            try:
+                confirm = input('You: ').strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                print()
+                session.close()
+                return
+            print()
+            if any(w in confirm for w in ('yes', 'y', 'sure', 'ok', 'yeah', 'yep')):
+                user_key = name_to_key(name)
+                user_name = name
+                save_new_user(user_key, user_name, phrase)
+                session.bind_user(user_key)
+                session.log_exchange(confirm, f'[enrolled as {user_name}, key={user_key}]')
+                greeting = f"Very well. I'll remember you as {name}. Now — are you human?"
+            else:
+                session.log_exchange(confirm, '[enrollment declined, continuing anonymous]')
+                greeting = GREETING
+        else:
+            session.log_exchange(id_input, '[could not extract name/phrase, continuing anonymous]')
+            greeting = GREETING
+
+    print(f'MrMind: {greeting}')
+    print()
+    session.log_greeting(greeting)
+
+    # Don't include identity-step exchanges in the end-of-session context compression
+    session._exchanges = []
+
+    # System prompt blocks — inject prior context when available
+    system_blocks = [{
+        'type': 'text',
+        'text': SYSTEM_PROMPT,
+        'cache_control': {'type': 'ephemeral'},
+    }]
+    if context:
+        system_blocks.append({
+            'type': 'text',
+            'text': f'PRIOR CONTEXT FOR {user_name}:\n{context}',
+        })
+
+    try:
+        while True:
+            try:
+                user_input = input('You: ').strip()
+            except EOFError:
+                print()
+                print(f'MrMind: {FAREWELL}')
+                session.log_exchange('(session ended)', FAREWELL)
+                break
+
+            if not user_input:
+                continue
+
+            session.try_capture_name(user_input)
+
+            if BYE_PAT.search(user_input.lower()):
+                print(f'MrMind: {FAREWELL}')
+                print()
+                session.log_exchange(user_input, FAREWELL)
+                break
+
+            messages.append({'role': 'user', 'content': user_input})
+
+            response = client.messages.create(
+                model='claude-opus-4-7',
+                max_tokens=256,
+                system=system_blocks,
+                messages=messages,
+            )
+
+            bot_text = response.content[0].text.strip()
+            session.record_usage(response.usage)
+            messages.append({'role': 'assistant', 'content': bot_text})
+
+            print(f'MrMind: {bot_text}')
+
+            note = ''
+            if args.verbose:
+                u = response.usage
+                cache_read = getattr(u, 'cache_read_input_tokens', 0)
+                cache_write = getattr(u, 'cache_creation_input_tokens', 0)
+                note = (
+                    f'[in: {u.input_tokens} | out: {u.output_tokens} | '
+                    f'cache_read: {cache_read} | cache_write: {cache_write}]'
+                )
+                print(f'  {note}')
+
+            print()
+            session.log_exchange(user_input, bot_text, note=note)
+
+            if BYE_PAT.search(bot_text.lower()):
+                break
+
+    except KeyboardInterrupt:
+        print()
+        print(f'MrMind: {FAREWELL}')
+        session.log_exchange('(interrupted)', FAREWELL)
+
+    # Compress and save updated context for known users
+    if user_key and session._exchanges:
+        new_context = compress_context(client, user_name, context, session._exchanges)
+        save_context(user_key, new_context)
 
     session.close()
 
