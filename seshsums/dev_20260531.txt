@@ -1,0 +1,38 @@
+Development Session Summary -- 2026-05-31
+============================================================
+
+WHAT EXISTED AT SESSION START
+------------------------------
+Project root was a flat mix of three distinct things all called "mrmind":
+  - Original AIML-style chatbot (c. 2000) using .g pattern files
+  - A Python conversion of the original (mrmind.py, mrmind.yaml, mrmind_llm.py)
+  - A Claude API-native version (mrmind2.py, mrmind2-peggy-prompts.py)
+
+mrmind2-peggy-prompts.py was untracked in git.
+
+WHAT HAPPENED THIS SESSION
+---------------------------
+1. Surveyed directory structure to map which files belonged to which lineage.
+
+2. Agreed on a naming scheme for the three lineages:
+   - mm_original     -- the c. 2000 .g-file chatbot
+   - mm_neooriginal  -- the Python conversion of the original
+   - mclaude         -- the Claude API version ("M. Claude", nod to M. Teste)
+
+3. Refactoring committed (single commit, sha 8b61445):
+   - mrmind_original/   -- all .g files, .tlx files, MrMind.bot, A_Q/, Q_A/,
+                           Defaults/, JB-added/, MrMind/, utilities/
+   - mrmind_neooriginal/ -- mrmind.py, mrmind.yaml
+   - mclaude/            -- mrmind2.py, mrmind2-peggy-prompts.py
+   - mrmind_llm.py removed (deleted in the refactor commit)
+   - conversations/ and seshsums/ remain at project root
+   - README.md remains at project root
+
+FILES CHANGED
+-------------
+  Commit 8b61445 -- full directory reorganisation + tracking peggy-prompts file
+
+NEXT STEPS
+----------
+- Update README.md to reflect the new three-lineage directory layout
+- Verify mclaude/ still runs correctly from its new location (import paths, etc.)

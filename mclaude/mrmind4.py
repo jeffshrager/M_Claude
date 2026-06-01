@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MrMind 2 -- a modern Claude-native reconstruction of the MrMind chatbot.
+"""MrMind 4 -- a modern Claude-native reconstruction of the MrMind chatbot.
 
 Unlike mrmind_llm.py (which feeds the original 2000-era yaml script to Claude
 as verbatim responses), this version gives Claude no script at all. Character,
@@ -20,7 +20,7 @@ from pathlib import Path
 # Multi-user identity / memory
 # ---------------------------------------------------------------------------
 
-MM2_DIR   = Path(__file__).parent / 'mm2'
+MM2_DIR   = Path(__file__).parent / 'mm'
 USERS_DIR = MM2_DIR / 'users'
 USERS_TSV = MM2_DIR / 'users.tsv'
 
@@ -283,7 +283,7 @@ class Session:
         self._total_cache_write_tokens = 0
         self._prompts_written = 0
 
-        self._sesh_file = open(sesh_dir / f'mm2_{stamp}.txt', 'w')
+        self._sesh_file = open(sesh_dir / f'mm_{stamp}.txt', 'w')
         self._sesh_file.write(
             f'Session Summary (MrMind 2) -- {self.start_time.strftime("%Y-%m-%d %H:%M:%S")}\n'
         )
@@ -304,7 +304,7 @@ class Session:
         """Open the conversation log under mm2/users/{user_key}/conversations/."""
         user_conv_dir = USERS_DIR / user_key / 'conversations'
         user_conv_dir.mkdir(parents=True, exist_ok=True)
-        self._conv_path = user_conv_dir / f'mm2_{self._stamp}.txt'
+        self._conv_path = user_conv_dir / f'mm_{self._stamp}.txt'
         self._conv_file = open(self._conv_path, 'w')
         self._conv_file.write(f'MrMind 2 session  {self.start_time.isoformat()}\n')
         self._conv_file.write('=' * 60 + '\n\n')

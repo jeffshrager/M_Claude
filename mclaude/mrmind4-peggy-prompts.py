@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MrMind 2 -- a modern Claude-native reconstruction of the MrMind chatbot.
+"""MrMind 4 -- a modern Claude-native reconstruction of the MrMind chatbot.
 
 Unlike mrmind_llm.py (which feeds the original 2000-era yaml script to Claude
 as verbatim responses), this version gives Claude no script at all. Character,
